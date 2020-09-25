@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\NCI.OCPL.Api.Common\NCI.OCPL.Api.Common.csproj" />
+        <ProjectReference Include="..\..\src\NCI.OCPL.Api.Common.Testing\NCI.OCPL.Api.Common.Testing.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.msbuild" Version="2.8.1">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+        <PackageReference AllowExplicitVersion="True" Include="Microsoft.AspNetCore.App" Version="2.1.4">
+            <PrivateAssets Condition="'%(PackageReference.Version)' == ''">all</PrivateAssets>
+            <Publish Condition="'%(PackageReference.Version)' == ''">true</Publish>
+        </PackageReference>
+        <PackageReference Include="xunit" Version="2.4.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+        <PackageReference Include="Moq" Version="4.13.1" />
+    </ItemGroup>
+
+</Project>

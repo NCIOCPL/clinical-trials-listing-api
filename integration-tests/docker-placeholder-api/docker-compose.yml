@@ -1,0 +1,67 @@
+version: "3.7"
+
+services:
+    elasticsearch:
+        image: elasticsearch:5.6.16
+        ## All of the ES settings can be set via the environment
+        ## vars.
+        environment:
+            - discovery.zen.ping.unicast.hosts=["127.0.0.1"]
+            - discovery.zen.minimum_master_nodes=1
+            - ES_JAVA_OPTS=-Xms750m -Xmx750m
+        ## These exposed ports are for debugging only. .NET +
+        ## Docker + MacOS == bad scene. (.NET always wants to
+        ## use the hosts name, and on a mac that is actually
+        ## a virtual machine, and not on the same network.)
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        networks:
+            placeholderapi:
+                aliases:
+                    - elasticsearch
+
+    api:
+        build:
+            ## We need the context of our build to be the root of the
+            ## project, which is where our code lives.
+            context: ../../
+            ## This path is relative to the context. Fun, eh?
+            dockerfile: integration-tests/docker-placeholder-api/api/Dockerfile
+        ports:
+            # Lets make it one more than the default aspnetcore app
+            - "5000:5000"
+        ## NOTE: This does NOT mean that this machine will wait
+        ## for elasticsearch to be running, just that the
+        ## elasticsearch container should be running first.
+        networks:
+            placeholderapi:
+                aliases:
+                    - api
+        depends_on:
+            - elasticsearch
+
+    ## Commenting out the test container as there seem to be some
+    ## performance issues with Karate + API + ES running in docker.
+    # test-container:
+    #     image: openjdk:11
+    #     volumes:
+    #         - ..:/usr/src/app
+    #     environment:
+    #            - "ELASTIC_SEARCH_HOST=http://elasticsearch:9200"
+    #            - "KARATE_APIHOST=http://api:5000"
+    #     working_dir: /usr/src/app
+    #     command: /usr/src/app/bin/run-integration-tests.sh
+    #     ## NOTE: This does NOT mean that this machine will wait
+    #     ## for elasticsearch to be running, just that the
+    #     ## elasticsearch container should be running first.
+    #     networks:
+    #         drugdictionaryapi:
+    #             aliases:
+    #                 - tester
+    #     depends_on:
+    #         - elasticsearch
+    #         - api
+
+networks:
+  placeholderapi:

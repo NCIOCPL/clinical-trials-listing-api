@@ -1,0 +1,14 @@
+# Editor common configuration.  http://EditorConfig.org
+
+# This is the top of the directory tree
+root = true
+
+[*]
+trim_trailing_whitespace = true
+indent_size = 4
+indent_style = space
+
+end_of_line = lf
+
+[*.yml]
+indent_size = 2
