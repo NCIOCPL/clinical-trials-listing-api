@@ -39,12 +39,12 @@ echo "ES status is green"
 
 pushd $DIR/../data/source
 echo "Load the index mapping"
-MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/drugv1 --data-binary \"@drug-es-mapping.json\""
+MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/listpagev1 --data-binary \"@listing-page-es-mapping.json\""
 mapping_output=$(eval $MAPPING_LOAD_CMD)
 echo $mapping_output
 
 echo "Load the records"
-BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@drug-data.jsonl\""
+BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@listing-page-data.jsonl\""
 load_output=$(eval $BULK_LOAD_CMD)
 
 ## Test to make sure we loaded items
