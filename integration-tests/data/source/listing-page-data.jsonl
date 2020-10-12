@@ -1,0 +1,28 @@
+{"index": {"_index": "listpagev1", "_type": "EvsRecord"}}
+{"concept_id": ["C7715","C115292","C9306","C7707"], "name": { "label": "Soft Tissue Sarcoma", "normalized": "soft tissue sarcoma" }, "pretty_url_name": "soft-tissue-sarcoma" }
+{"index": {"_index": "listpagev1", "_type": "EvsRecord"}}
+{"concept_id": ["C7834","C71698","C7884"], "name": { "label": "Recurrent Brain Neoplasm", "normalized": "recurrent brain neoplasm" }, "pretty_url_name": "recurrent-brain-neoplasm" }
+{"index": {"_index": "listpagev1", "_type": "EvsRecord"}}
+{"concept_id": ["C114967","C114964","C114972","C114963"], "name": { "label": "Childhood Astrocytoma", "normalized": "childhood astrocytoma" }, "pretty_url_name": "childhood-astrocytoma" }
+{"index": {"_index": "listpagev1", "_type": "OverrideRecord"}}
+{"concept_id": ["C7707"], "unique_id": "C7707", "name": { "label": "Adult Soft Tissue Sarcoma", "normalized": "adult soft tissue sarcoma" }, "pretty_url_name": "adult-soft-tissue-sarcoma" }
+{"index": {"_index": "listpagev1", "_type": "OverrideRecord"}}
+{"concept_id": ["C7884"], "unique_id": "C7884", "name": { "label": "Recurrent Adult Brain Tumors", "normalized": "recurrent adult brain tumors" }, "pretty_url_name": "recurrent-adult-brain" }
+{"index": {"_index": "listpagev1", "_type": "OverrideRecord"}}
+{"concept_id": ["C114967","C114964","C114972","C114963"], "unique_id": "C114967,C114964,C114972,C114963", "name": { "label": "Childhood Brain Cancer", "normalized": "childhood brain cancer" }, "pretty_url_name": "childhood-brain-cancer" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "treatment", "id_string": "treatment", "label": "Treatment" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "other", "id_string": "other", "label": "Other" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "supportive-care", "id_string": "supportive_care", "label": "Supportive Care" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "diagnostic", "id_string": "diagnostic", "label": "Diagnostic" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "prevention", "id_string": "prevention", "label": "Prevention" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "basic-science", "id_string": "basic_science", "label": "Basic Science" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "health-services-research", "id_string": "health_services_research", "label": "Health Services Research" }
+{"index": {"_index": "listpagev1", "_type": "LabelInformation"}}
+{"pretty_url_name": "screening", "id_string": "screening", "label": "Screening" }
