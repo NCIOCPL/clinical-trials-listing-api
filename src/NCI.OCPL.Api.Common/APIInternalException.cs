@@ -12,7 +12,6 @@ namespace NCI.OCPL.Api.Common
         /// </summary>
         /// <param name="message"></param>
         public APIInternalException(string message) :
-        base(message)
-        { }
+        base(message) {}
     }
 }

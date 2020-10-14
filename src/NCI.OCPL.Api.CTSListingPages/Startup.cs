@@ -49,6 +49,7 @@ namespace NCI.OCPL.Api.CTSListingPages
         {
             // Add our Query Services.
             services.AddTransient<ILabelLookupQueryService, ESLabelLookupQueryService>();
+            services.AddTransient<IListingInfoQueryService, ESListingInfoQueryService>();
 
             services.Configure<ListingPageAPIOptions>(Configuration.GetSection("ListingPageAPI"));
         }
