@@ -1,9 +1,10 @@
 namespace NCI.OCPL.Api.CTSListingPages
 {
     /// <summary>
-    /// Contains the return data for retrieving a collection of EvsRecord objects.
+    /// Contains the return data for retrieving a collection of
+    /// listing information objects.
     /// </summary>
-    public class OverrideResults
+    public class ListingResults
     {
         /// <summary>
         /// Contains metadata about the collection.
@@ -11,8 +12,8 @@ namespace NCI.OCPL.Api.CTSListingPages
         public ResultsMetadata Meta;
 
         /// <summary>
-        /// An array of zero or more OverrideRecord objects.
+        /// An array of zero or more ListingInfo objects.
         /// </summary>
-        public OverrideRecord[] Results;
+        public ListingInfo[] Results;
     }
 }

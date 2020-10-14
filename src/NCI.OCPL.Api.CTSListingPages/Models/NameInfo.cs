@@ -3,7 +3,8 @@ using Nest;
 namespace NCI.OCPL.Api.CTSListingPages
 {
     /// <summary>
-    /// Child class of ListingInfo containing the labels and overrides for the listing item.
+    /// Child class of ListingInfo containing both the original and normalized versions of
+    /// the item's label..
     /// </summary>
     public class NameInfo
     {
@@ -14,7 +15,7 @@ namespace NCI.OCPL.Api.CTSListingPages
         public string Label {get;set;}
 
         /// <summary>
-        /// The label, converted by the loader to a normalized form.
+        /// A normalized form of the Label value.
         /// </summary>
         [Keyword(Name = "normalized")]
         public string Normalized { get; set; }

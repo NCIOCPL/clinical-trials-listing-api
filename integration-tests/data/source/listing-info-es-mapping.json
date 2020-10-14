@@ -22,10 +22,6 @@
                 "enabled": false
             },
             "properties": {
-                "type": {
-                    "type": "keyword",
-                    "normalizer": "caseinsensitive_normalizer"
-                },
                 "concept_id": {
                     "type": "keyword",
                     "normalizer": "caseinsensitive_normalizer"
@@ -37,18 +33,21 @@
                 "name": {
                     "properties": {
                         "label": {
-                                "type": "keyword",
-                                "normalizer": "caseinsensitive_normalizer"
-                            },
+                            "type": "keyword",
+                            "normalizer": "caseinsensitive_normalizer"
+                        },
                         "normalized": {
-                                "type": "keyword",
-                                "normalizer": "caseinsensitive_normalizer"
-                            }
+                            "type": "keyword",
+                            "normalizer": "caseinsensitive_normalizer"
+                        }
                     }
                 },
                 "pretty_url_name": {
                     "type": "keyword",
                     "normalizer": "caseinsensitive_normalizer"
+                },
+                "exact_match": {
+                    "type": "boolean"
                 }
             }
         }
