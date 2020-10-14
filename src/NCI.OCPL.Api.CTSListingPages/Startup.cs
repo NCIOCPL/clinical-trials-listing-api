@@ -12,9 +12,13 @@ using Microsoft.Extensions.Options;
 
 using NCI.OCPL.Api.Common;
 using NCI.OCPL.Api.CTSListingPages.Models;
+using NCI.OCPL.Api.CTSListingPages.Services;
 
 namespace NCI.OCPL.Api.CTSListingPages
 {
+    /// <summary>
+    /// Defines the configuration of the Listing Page API.
+    /// </summary>
     public class Startup : NciStartupBase
     {
         /// <summary>
@@ -43,7 +47,8 @@ namespace NCI.OCPL.Api.CTSListingPages
         /// <param name="services">Services.</param>
         protected override void AddAppServices(IServiceCollection services)
         {
-            // Add our Query Services
+            // Add our Query Services.
+            services.AddTransient<IOverridesQueryService, ESOverrideQueryService>();
 
             services.Configure<ListingPageAPIOptions>(Configuration.GetSection("ListingPageAPI"));
         }

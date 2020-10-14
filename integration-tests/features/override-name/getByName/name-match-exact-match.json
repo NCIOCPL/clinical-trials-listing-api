@@ -1,0 +1,12 @@
+{
+    "uniqueId": "C7707",
+    "type": "OverrideRecord",
+    "conceptId": [
+        "C7707"
+    ],
+    "name": {
+        "label": "Adult Soft Tissue Sarcoma",
+        "normalized": "adult soft tissue sarcoma"
+    },
+    "prettyUrlName": "adult-soft-tissue-sarcoma"
+}

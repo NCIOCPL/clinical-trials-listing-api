@@ -3,14 +3,25 @@ using Nest;
 namespace NCI.OCPL.Api.CTSListingPages
 {
     /// <summary>
-    /// Abstract base class common to EvsRecord and OverrideRecord.
+    /// Base class common to EvsRecord and OverrideRecord.
+    ///
+    /// This class implements the properties defined in IListingInfo, however it
+    /// expressly does *NOT* "implement" IListingInfo. The intent is to enforce the
+    /// use of classes implementing IListingInfo for serializiation, while providing
+    /// a single class for maintaining the NEST attribute mapping data.
     /// </summary>
-    abstract public class ListingInfo
+    abstract public class ListingInfo : IListingInfo
     {
+        /// <summary>
+        /// Notes the subclass which represents a particular Elasticsearch ListingInfo document.
+        /// </summary>
+        [Keyword(Name = "type")]
+        public RecordType Type {get; set;}
+
         /// <summary>
         /// An array of one or more concept IDs which mapping to this disease or intervention.
         /// </summary>
-        [Keyword(Name = "label")]
+        [Keyword(Name = "concept_id")]
         public string[] ConceptId {get;set;}
 
         /// <summary>
