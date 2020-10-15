@@ -38,17 +38,29 @@ done
 echo "ES status is green"
 
 pushd $DIR/../data/source
-echo "Load the index mapping"
-MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/listpagev1 --data-binary \"@listing-page-es-mapping.json\""
+echo "Load the index mappings"
+MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/listinginfov1 --data-binary \"@listing-info-es-mapping.json\""
 mapping_output=$(eval $MAPPING_LOAD_CMD)
 echo $mapping_output
 
+MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/labelinformationv1 --data-binary \"@label-information-es-mapping.json\""
+mapping_output=$(eval $MAPPING_LOAD_CMD)
+echo $mapping_output
+
+
 echo "Load the records"
-BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@listing-page-data.jsonl\""
+BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@listing-info-data.jsonl\""
 load_output=$(eval $BULK_LOAD_CMD)
 
 ## Test to make sure we loaded items
 ## TODO: Actually check for errors.
-echo $curl_output | wc -l
+echo $load_output | wc -l
+
+BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@label-information-data.jsonl\""
+load_output=$(eval $BULK_LOAD_CMD)
+
+## Test to make sure we loaded items
+## TODO: Actually check for errors.
+echo $load_output | wc -l
 
 popd
