@@ -1,0 +1,13 @@
+{"index": {"_index": "listinginfov1", "_type": "ListingInfo"}}
+{"type": "EvsRecord", "concept_id": ["C7715","C115292","C9306","C7707"], "name": { "label": "Soft Tissue Sarcoma", "normalized": "soft tissue sarcoma" }, "pretty_url_name": "soft-tissue-sarcoma" }
+{"index": {"_index": "listinginfov1", "_type": "ListingInfo"}}
+{"type": "EvsRecord", "concept_id": ["C7834","C71698","C7884"], "name": { "label": "Recurrent Brain Neoplasm", "normalized": "recurrent brain neoplasm" }, "pretty_url_name": "recurrent-brain-neoplasm" }
+{"index": {"_index": "listinginfov1", "_type": "ListingInfo"}}
+{"type": "EvsRecord", "concept_id": ["C114967","C114964","C114972","C114963"], "name": { "label": "Childhood Astrocytoma", "normalized": "childhood astrocytoma" }, "pretty_url_name": "childhood-astrocytoma" }
+{"index": {"_index": "listinginfov1", "_type": "ListingInfo"}}
+{"type": "OverrideRecord", "concept_id": ["C7707"], "unique_id": "C7707", "name": { "label": "Adult Soft Tissue Sarcoma", "normalized": "adult soft tissue sarcoma" }, "pretty_url_name": "adult-soft-tissue-sarcoma" }
+{"index": {"_index": "listinginfov1", "_type": "ListingInfo"}}
+{"type": "OverrideRecord", "concept_id": ["C7884"], "unique_id": "C7884", "name": { "label": "Recurrent Adult Brain Tumors", "normalized": "recurrent adult brain tumors" }, "pretty_url_name": "recurrent-adult-brain" }
+{"index": {"_index": "listinginfov1", "_type": "ListingInfo"}}
+{"type": "OverrideRecord", "concept_id": ["C114967","C114964","C114972","C114963"], "unique_id": "C114967,C114964,C114972,C114963", "name": { "label": "Childhood Brain Cancer", "normalized": "childhood brain cancer" }, "pretty_url_name": "childhood-brain-cancer" }
+
