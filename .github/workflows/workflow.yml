@@ -13,9 +13,12 @@ on:
       - 'feature/**'
   ## Any pull request. Yes the syntax looks weird
   pull_request:
+
 jobs:
+
   test_build_release:
     name: Test, Build, Publish on OS ${{ matrix.operating-system }}
+    needs: extract_build_info
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
@@ -48,11 +51,20 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o $GITHUB_WORKSPACE/out src/NCI.OCPL.Api.CTSListingPages/
         shell: bash
+      - name: Record metadata
+        env:
+          BUILD_INFO: ${{ toJson( needs.extract_build_info.outputs ) }}
+        run: |
+          echo "$BUILD_INFO"
+          mkdir $GITHUB_WORKSPACE/out/wwwroot/
+          echo "$BUILD_INFO" > $GITHUB_WORKSPACE/out/wwwroot/build-info.json
+        shell: bash
       - name: Upload Published Artifact
         uses: actions/upload-artifact@v1
         with:
           name: listing-page-api-${{ matrix.operating-system }}
           path: out
+
   integration_tests:
     name: Run Integration Tests (on Linux)
     runs-on: ubuntu-latest
@@ -147,3 +159,51 @@ jobs:
               else
                 echo "Tests passed"
               fi
+
+  extract_build_info:
+    ## Gather metadata for the build artifact.
+    ##
+    ## This is done in a separate job so we don't have to figure out how to extract the
+    ## same information on every platform.
+    ## Ideally, this should be done in a GitHub Action.
+    name: Extract build metadata.
+    runs-on: ubuntu-latest
+    outputs:
+      build_name: ${{ steps.set_outputs.outputs.build_name }}
+      branch_name: ${{ steps.set_outputs.outputs.branch_name }}
+      commit_hash: ${{ steps.set_outputs.outputs.commit_hash }}
+      repo_owner: ${{ steps.set_outputs.outputs.repo_owner }}
+      repo_name: ${{ steps.set_outputs.outputs.repo_name }}
+
+    steps:
+      - name: Set outputs
+        id: set_outputs
+        run: |
+          ## PUSH
+          if [ "${{ github.event_name }}" == "push" ]; then
+            BUILD_NAME=$(sed -E 's/refs\/(heads|tags)\///; s/\//__/g;' <<< $GITHUB_REF)
+            BRANCH_NAME=$(sed -E 's/refs\/(heads|tags)\///;' <<< $GITHUB_REF)
+            COMMIT_HASH=$(echo "${GITHUB_SHA}")
+          ## PULL_REQUEST
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            BUILD_NAME=$(echo "pr-${{ github.event.pull_request.number }}")
+            BRANCH_NAME=$(echo "pr-${{ github.event.pull_request.number }}")
+            COMMIT_HASH=$(echo "${{ github.event.pull_request.head.sha }}")
+          else
+            ## ERROR
+            exit 1
+          fi
+          ## For step checks and artifact deployment path.
+          ## Same for push and PR
+          export REPO_FULL=${{ github.repository }}
+          export REPO_RE='([^/]+)/(.*)'
+          [[ "$REPO_FULL" =~ $REPO_RE ]]
+          REPO_OWNER=$(echo "${BASH_REMATCH[1]}")
+          REPO_NAME=$(echo "${BASH_REMATCH[2]}")
+          ## Set step outputs for later use
+          echo ::set-output name=build_name::${BUILD_NAME}
+          echo ::set-output name=branch_name::${BRANCH_NAME}
+          echo ::set-output name=commit_hash::${COMMIT_HASH}
+          echo ::set-output name=repo_owner::${REPO_OWNER}
+          echo ::set-output name=repo_name::${REPO_NAME}
+
