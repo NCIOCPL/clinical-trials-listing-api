@@ -1,5 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
+using System.Text;
 
 using System.Xml;
 using System.Xml.Serialization;
@@ -7,7 +8,7 @@ using System.Xml.Serialization;
 namespace NCI.OCPL.Api.Common.Testing
 {
     /// <summary>
-    /// Helper tools for loading responses from files and 
+    /// Helper tools for loading responses from files and
     /// deserializing XML to objects.
     /// </summary>
     public static class TestingTools
@@ -42,6 +43,18 @@ namespace NCI.OCPL.Api.Common.Testing
             Stream contents = File.OpenRead(path);
 
             return contents;
+        }
+
+        /// <summary>
+        /// Gets a string as a stream. Useful for when you don't want to maintain a
+        /// separate file but have a string which needs to look like it came from one.
+        /// </summary>
+        /// <param name="dataString">The string to convert.</param>
+        /// <returns></returns>
+        public static Stream GetStringAsStream(string dataString)
+        {
+            byte[] byteArray = Encoding.UTF8.GetBytes(dataString);
+            return new MemoryStream(byteArray);
         }
 
         /// <summary>
