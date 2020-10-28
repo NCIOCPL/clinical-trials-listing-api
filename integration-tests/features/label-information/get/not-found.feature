@@ -1,11 +1,11 @@
-Feature: Fail to retrieve label information by specifying a nonexistent name.
+Feature: Fail to retrieve trial type info by specifying a nonexistent name.
 
     Background:
         * url apiHost
 
     Scenario Outline: Validate no result found when matching against name.
 
-        Given path 'label-lookup', name
+        Given path 'trial-type', name
         When method get
         Then assert responseStatus == exStatus
         And match response == read( expected )

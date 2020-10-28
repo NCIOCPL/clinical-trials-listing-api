@@ -19,8 +19,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         ""max_score"": 2.2335923,
         ""hits"": [
             {
-                ""_index"": ""labelinformationv1"",
-                ""_type"": ""LabelInformation"",
+                ""_index"": ""trialtypeinfov1"",
+                ""_type"": ""TrialTypeInfo"",
                 ""_id"": ""AXUtWHSZPZ7BGoClhnsQ"",
                 ""_score"": 2.2335923,
                 ""_source"": {
@@ -30,8 +30,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 }
             },
             {
-                ""_index"": ""labelinformationv1"",
-                ""_type"": ""LabelInformation"",
+                ""_index"": ""trialtypeinfov1"",
+                ""_type"": ""TrialTypeInfo"",
                 ""_id"": ""AXUtWHSZPZ7BGoClhnsQ"",
                 ""_score"": 2.2335923,
                 ""_source"": {
@@ -44,7 +44,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
     }
 }";
 
-        public override LabelInformation ExpectedData => new LabelInformation
+        public override TrialTypeInfo ExpectedData => new TrialTypeInfo
         {
             PrettyUrlName = "treatment",
             IdString = "treatment",

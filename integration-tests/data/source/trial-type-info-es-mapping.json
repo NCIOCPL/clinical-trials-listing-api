@@ -17,7 +17,7 @@
         }
     },
     "mappings": {
-        "LabelInformation": {
+        "TrialTypeInfo": {
             "_all":         { "enabled": false },
             "properties":   {
                 "pretty_url_name":  {

@@ -5,7 +5,7 @@ namespace NCI.OCPL.Api.CTSListingPages
     /// <summary>
     /// Specifies a text string to replace with a different text string.
     /// </summary>
-    public class LabelInformation
+    public class TrialTypeInfo
     {
         /// <summary>
         /// Url-friendly version of the text which will be replaced.

@@ -6,10 +6,10 @@ namespace NCI.OCPL.Api.CTSListingPages.Models
     public class ListingPageAPIOptions
     {
         /// <summary>
-        /// Gets or sets the alias name for the LabelInformation Elasticsearch Collection we will use.
+        /// Gets or sets the alias name for the TrialTypeInfo Elasticsearch Collection we will use.
         /// </summary>
-        /// <value>The name of the LabelInformation alias.</value>
-        public string LabelInformationAliasName { get; set; }
+        /// <value>The name of the TrialTypeInfo alias.</value>
+        public string TrialTypeInfoAliasName { get; set; }
 
         /// <summary>
         /// Gets or sets the alias name for the ListingInfo Elasticsearch Collection we will use.
