@@ -21,7 +21,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
     }
 }";
 
-        public override LabelInformation ExpectedData => null;
+        public override TrialTypeInfo ExpectedData => null;
 
         public override string ErrorMessage => null;
 

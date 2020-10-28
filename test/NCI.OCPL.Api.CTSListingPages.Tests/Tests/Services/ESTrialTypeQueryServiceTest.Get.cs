@@ -19,7 +19,7 @@ using NCI.OCPL.Api.CTSListingPages.Services;
 
 namespace NCI.OCPL.Api.CTSListingPages.Tests
 {
-    public partial class ESLabelLookupQueryServiceTest
+    public partial class ETrialTypeQueryServiceTest
     {
         /// <summary>
         /// Test to verify that Elasticsearch requests are being assembled correctly.
@@ -48,7 +48,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             JObject requestBody = null;
 
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
-            conn.RegisterRequestHandlerForType<Nest.SearchResponse<LabelInformation>>((req, res) =>
+            conn.RegisterRequestHandlerForType<Nest.SearchResponse<TrialTypeInfo>>((req, res) =>
             {
                 // We don't really care about the response for this test.
                 res.Stream = MockEmptyResponse;
@@ -69,13 +69,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
 
-            ESLabelLookupQueryService query = new ESLabelLookupQueryService(client, clientOptions, new NullLogger<ESLabelLookupQueryService>());
+            ESTrialTypeQueryService query = new ESTrialTypeQueryService(client, clientOptions, new NullLogger<ESTrialTypeQueryService>());
 
             // For this test, we don't really care that this returns anything, only that the intercepting connection
             // sets up the request correctly.
             await query.Get(theName);
 
-            Assert.Equal("/labelinformationv1/LabelInformation/_search", esURI.AbsolutePath);
+            Assert.Equal("/trialtypeinfov1/TrialTypeInfo/_search", esURI.AbsolutePath);
             Assert.Equal("application/json", esContentType);
             Assert.Equal(HttpMethod.POST, esMethod);
             Assert.Equal(expectedRequest, requestBody, new JTokenEqualityComparer());
@@ -88,7 +88,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         public async void Get_TestInvalidResponse()
         {
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
-            conn.RegisterRequestHandlerForType<Nest.SearchResponse<LabelInformation>>((req, res) =>
+            conn.RegisterRequestHandlerForType<Nest.SearchResponse<TrialTypeInfo>>((req, res) =>
             {
 
             });
@@ -103,7 +103,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
 
-            Mock<ILogger<ESLabelLookupQueryService>> _mockLogger = new Mock<ILogger<ESLabelLookupQueryService>>();
+            Mock<ILogger<ESTrialTypeQueryService>> _mockLogger = new Mock<ILogger<ESTrialTypeQueryService>>();
 
             _mockLogger.Setup(log => log.Log(
                 It.IsAny<Microsoft.Extensions.Logging.LogLevel>(),
@@ -113,7 +113,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 It.IsAny<Func<It.IsAnyType, Exception, string>>())
             );
 
-            ESLabelLookupQueryService queryService = new ESLabelLookupQueryService(client, clientOptions, _mockLogger.Object);
+            ESTrialTypeQueryService queryService = new ESTrialTypeQueryService(client, clientOptions, _mockLogger.Object);
 
             APIInternalException ex = await Assert.ThrowsAsync<APIInternalException>(() => queryService.Get("chicken"));
 
@@ -145,7 +145,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         public async void Get_TestSuccess(Get_BaseScenario data)
         {
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
-            conn.RegisterRequestHandlerForType<Nest.SearchResponse<LabelInformation>>((req, res) =>
+            conn.RegisterRequestHandlerForType<Nest.SearchResponse<TrialTypeInfo>>((req, res) =>
             {
                 res.Stream = TestingTools.GetStringAsStream(data.MockESResponse);
                 res.StatusCode = 200;
@@ -160,7 +160,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
 
-            Mock<ILogger<ESLabelLookupQueryService>> _mockLogger = new Mock<ILogger<ESLabelLookupQueryService>>();
+            Mock<ILogger<ESTrialTypeQueryService>> _mockLogger = new Mock<ILogger<ESTrialTypeQueryService>>();
 
             _mockLogger.Setup(log => log.Log(
                 It.IsAny<Microsoft.Extensions.Logging.LogLevel>(),
@@ -170,9 +170,9 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 It.IsAny<Func<It.IsAnyType, Exception, string>>() )
             );
 
-            ESLabelLookupQueryService query = new ESLabelLookupQueryService(client, clientOptions, _mockLogger.Object);
+            ESTrialTypeQueryService query = new ESTrialTypeQueryService(client, clientOptions, _mockLogger.Object);
 
-            LabelInformation result = await query.Get("treatment");
+            TrialTypeInfo result = await query.Get("treatment");
 
             // Verify that the logger logs a warning the expected number of times, with the expected error message.
             // For no results and one result, the logger logs zero warnings with no error message.
@@ -188,7 +188,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 Times.Exactly(data.ExpectedLoggerCalls)
             );
 
-            Assert.Equal(data.ExpectedData, result, new LabelInformationComparer());
+            Assert.Equal(data.ExpectedData, result, new TrialTypeComparer());
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 .SetupGet(opt => opt.Value)
                 .Returns(new ListingPageAPIOptions()
                 {
-                    LabelInformationAliasName = "labelinformationv1"
+                    TrialTypeInfoAliasName = "trialtypeinfov1"
                 }
             );
 

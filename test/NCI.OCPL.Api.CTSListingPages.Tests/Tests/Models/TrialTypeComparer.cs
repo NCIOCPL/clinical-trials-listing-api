@@ -4,11 +4,11 @@ using System.Collections.Generic;
 namespace NCI.OCPL.Api.CTSListingPages.Tests
 {
     /// <summary>
-    /// An IEqualityComparer for LabelInformation objects.
+    /// An IEqualityComparer for TrialTypeInfo objects.
     /// </summary>
-    public class LabelInformationComparer : IEqualityComparer<LabelInformation>
+    public class TrialTypeComparer : IEqualityComparer<TrialTypeInfo>
     {
-        public bool Equals(LabelInformation x, LabelInformation y)
+        public bool Equals(TrialTypeInfo x, TrialTypeInfo y)
         {
             // If the items are both null, or if one or the other is null, return
             // the correct response right away.
@@ -29,7 +29,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             return isEqual;
         }
 
-        public int GetHashCode(LabelInformation obj)
+        public int GetHashCode(TrialTypeInfo obj)
         {
             int hash = 0;
 

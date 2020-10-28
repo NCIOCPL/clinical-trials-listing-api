@@ -43,7 +43,7 @@ MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${EL
 mapping_output=$(eval $MAPPING_LOAD_CMD)
 echo $mapping_output
 
-MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/labelinformationv1 --data-binary \"@label-information-es-mapping.json\""
+MAPPING_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPUT ${ELASTIC_HOST}/trialtypeinfov1 --data-binary \"@trial-type-info-es-mapping.json\""
 mapping_output=$(eval $MAPPING_LOAD_CMD)
 echo $mapping_output
 
@@ -56,7 +56,7 @@ load_output=$(eval $BULK_LOAD_CMD)
 ## TODO: Actually check for errors.
 echo $load_output | wc -l
 
-BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@label-information-data.jsonl\""
+BULK_LOAD_CMD="curl -fsS -H \"Content-Type: application/x-ndjson\" -XPOST ${ELASTIC_HOST}/_bulk --data-binary \"@trial-type-info-data.jsonl\""
 load_output=$(eval $BULK_LOAD_CMD)
 
 ## Test to make sure we loaded items

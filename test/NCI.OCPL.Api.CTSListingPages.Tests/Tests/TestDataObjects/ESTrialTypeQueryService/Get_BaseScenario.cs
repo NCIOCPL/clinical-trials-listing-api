@@ -9,9 +9,9 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         public abstract string MockESResponse { get; }
 
         /// <summary>
-        /// The LabelInformation which the service is expected to return from the response.
+        /// The TrialTypeInfo which the service is expected to return from the response.
         /// </summary>
-        public abstract LabelInformation ExpectedData { get; }
+        public abstract TrialTypeInfo ExpectedData { get; }
 
         /// <summary>
         /// The error message which the service is expected to log.

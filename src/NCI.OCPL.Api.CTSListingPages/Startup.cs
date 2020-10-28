@@ -48,7 +48,7 @@ namespace NCI.OCPL.Api.CTSListingPages
         protected override void AddAppServices(IServiceCollection services)
         {
             // Add our Query Services.
-            services.AddTransient<ILabelLookupQueryService, ESLabelLookupQueryService>();
+            services.AddTransient<ITrialTypeQueryService, ESTrialTypeQueryService>();
             services.AddTransient<IListingInfoQueryService, ESListingInfoQueryService>();
 
             services.Configure<ListingPageAPIOptions>(Configuration.GetSection("ListingPageAPI"));

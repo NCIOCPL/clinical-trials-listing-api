@@ -12,9 +12,9 @@ using NCI.OCPL.Api.CTSListingPages.Models;
 namespace NCI.OCPL.Api.CTSListingPages.Services
 {
     /// <summary>
-    /// Elasticsearch implemenation of the service for retrieving label information.
+    /// Elasticsearch implemenation of the service for retrieving trial type data.
     /// </summary>
-    public class ESLabelLookupQueryService : ILabelLookupQueryService
+    public class ESTrialTypeQueryService : ITrialTypeQueryService
     {
         /// <summary>
         /// The elasticsearch client
@@ -29,13 +29,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         /// <summary>
         /// A logger to use for logging
         /// </summary>
-        private readonly ILogger<ESLabelLookupQueryService> _logger;
+        private readonly ILogger<ESTrialTypeQueryService> _logger;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ESLabelLookupQueryService(IElasticClient client, IOptions<ListingPageAPIOptions> apiOptionsAccessor,
-            ILogger<ESLabelLookupQueryService> logger)
+        public ESTrialTypeQueryService(IElasticClient client, IOptions<ListingPageAPIOptions> apiOptionsAccessor,
+            ILogger<ESTrialTypeQueryService> logger)
         {
             _elasticClient = client;
             _apiOptions = apiOptionsAccessor.Value;
@@ -43,29 +43,29 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         }
 
         /// <summary>
-        /// Retrieve a single LabelInformation with a pretty-url name or identifier exactly matching the name parameter.
+        /// Retrieve a single TrialTypeInfo with a pretty-url name or identifier exactly matching the name parameter.
         /// </summary>
         /// <param name="name">The name - either the pretty-url name or identifier string - of the record to be retrieved.</param>
-        /// <returns>A LabelInformation object or null if an exact match is not found.</returns>
-        public async Task<LabelInformation> Get(string name)
+        /// <returns>A TrialTypeInfo object or null if an exact match is not found.</returns>
+        public async Task<TrialTypeInfo> Get(string name)
         {
             // Set up the SearchRequest to send to elasticsearch.
-            Indices index = Indices.Index(new string[] { this._apiOptions.LabelInformationAliasName });
-            Types types = Types.Type(new string[] { "LabelInformation" });
+            Indices index = Indices.Index(new string[] { this._apiOptions.TrialTypeInfoAliasName });
+            Types types = Types.Type(new string[] { "TrialTypeInfo" });
             SearchRequest request = new SearchRequest(index, types)
             {
                 Query = new TermQuery { Field = "pretty_url_name", Value = name.ToString() } ||
                         new TermQuery { Field = "id_string", Value = name.ToString() }
             };
 
-            ISearchResponse<LabelInformation> response = null;
+            ISearchResponse<TrialTypeInfo> response = null;
             try
             {
-                response = await _elasticClient.SearchAsync<LabelInformation>(request);
+                response = await _elasticClient.SearchAsync<TrialTypeInfo>(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error searching index: '{this._apiOptions.LabelInformationAliasName}'.");
+                _logger.LogError(ex, $"Error searching index: '{this._apiOptions.TrialTypeInfoAliasName}'.");
                 throw new APIInternalException("errors occured");
             }
 
@@ -77,12 +77,12 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
                 throw new APIInternalException("errors occured");
             }
 
-            LabelInformation labelInfo = null;
+            TrialTypeInfo trialTypeInfo = null;
 
             // If there is are any records in the response, the lookup was successful.
             if (response.Total > 0)
             {
-                labelInfo = response.Documents.First();
+                trialTypeInfo = response.Documents.First();
 
                 if (response.Total > 1)
                 {
@@ -90,7 +90,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
                 }
             }
 
-            return labelInfo;
+            return trialTypeInfo;
         }
     }
 }
