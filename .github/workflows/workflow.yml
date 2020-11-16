@@ -143,7 +143,7 @@ jobs:
               ## Store the exit code off so we can pass this step and
               ## capture the test output in the next step, but still
               ## fail the entire job
-              echo ::set-env name=TEST_EXIT_CODE::$?
+              echo TEST_EXIT_CODE=$? >> $GITHUB_ENV
               exit 0
       - name: Upload Integration test results
         uses: actions/upload-artifact@v1
