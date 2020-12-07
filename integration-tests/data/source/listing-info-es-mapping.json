@@ -26,10 +26,6 @@
                     "type": "keyword",
                     "normalizer": "caseinsensitive_normalizer"
                 },
-                "unique_id": {
-                    "type": "keyword",
-                    "normalizer": "caseinsensitive_normalizer"
-                },
                 "name": {
                     "properties": {
                         "label": {
@@ -45,9 +41,6 @@
                 "pretty_url_name": {
                     "type": "keyword",
                     "normalizer": "caseinsensitive_normalizer"
-                },
-                "exact_match": {
-                    "type": "boolean"
                 }
             }
         }

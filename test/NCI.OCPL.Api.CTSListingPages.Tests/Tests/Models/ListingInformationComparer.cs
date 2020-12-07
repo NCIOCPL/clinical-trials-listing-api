@@ -24,9 +24,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             bool isEqual =
                 x.ConceptId.SequenceEqual(y.ConceptId)
                 && x.PrettyUrlName.Equals(y.PrettyUrlName)
-                && x.UniqueId.Equals(y.UniqueId)
-                && new NameInfoComparer().Equals(x.Name, y.Name)
-                && x.ExactMatch.Equals(y.ExactMatch);
+                && new NameInfoComparer().Equals(x.Name, y.Name);
 
             return isEqual;
         }
@@ -37,10 +35,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 
             hash ^=
                 obj.ConceptId.GetHashCode()
-                ^obj.PrettyUrlName.GetHashCode()
-                ^obj.UniqueId.GetHashCode()
-                ^(new NameInfoComparer()).GetHashCode(obj.Name)
-                ^obj.ExactMatch.GetHashCode();
+                ^ obj.PrettyUrlName.GetHashCode()
+                ^ (new NameInfoComparer()).GetHashCode(obj.Name);
 
             return hash;
         }

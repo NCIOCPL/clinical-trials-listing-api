@@ -1,5 +1,4 @@
 {
-    "uniqueId": "C7707",
     "conceptId": [
         "C7707"
     ],
@@ -7,6 +6,5 @@
         "label": "Adult Soft Tissue Sarcoma",
         "normalized": "adult soft tissue sarcoma"
     },
-    "prettyUrlName": "adult-soft-tissue-sarcoma",
-    "exactMatch": true
+    "prettyUrlName": "adult-soft-tissue-sarcoma"
 }
