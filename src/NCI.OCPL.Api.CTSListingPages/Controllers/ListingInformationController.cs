@@ -66,5 +66,37 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
 
             return result;
         }
+
+        /// <summary>
+        /// Retrieve the listing information for concept record(s) by exactly or partially matching
+        /// the c-code (list) parameter.
+        /// </summary>
+        /// <param name="ccode">The c-code list of the record(s) to be retrieved.</param>
+        /// <returns>A ListingInfo object containing the concept data, or status 404 if exact or partial matches are not found.</returns>
+        [HttpGet("get")]
+        public async Task<ListingInfo> GetByIds([FromQuery] string[] ccode)
+        {
+            // If the array is null, empty, or contains empty strings, throw an error.
+            if (ccode == null || ccode.Length == 0 || ccode.Any(c => string.IsNullOrWhiteSpace(c)))
+                throw new APIErrorException(400, "You must specify at least one ccode parameter.");
+
+            ListingInfo[] results;
+            try
+            {
+                results = await _listingInfoQueryService.GetByIds(ccode);
+            }
+            catch (APIInternalException)
+            {
+                throw new APIErrorException(500, "Errors occured.");
+            }
+
+            if (results == null || results.Length == 0)
+                throw new APIErrorException(404, $"Could not find codes '{string.Join(",", ccode)}'.");
+
+            if (results.Length > 1)
+                throw new APIErrorException(409, $"Multiple records found for codes '{string.Join(",", ccode)}'.");
+
+            return results.First();
+        }
     }
 }

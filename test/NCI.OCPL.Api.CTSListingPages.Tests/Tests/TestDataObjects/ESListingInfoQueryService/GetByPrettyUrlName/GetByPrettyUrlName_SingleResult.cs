@@ -29,13 +29,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                         ""C114972"",
                         ""C114963""
                     ],
-                    ""unique_id"": ""C114967,C114964,C114972,C114963"",
                     ""name"": {
                         ""label"": ""Childhood Brain Cancer"",
                         ""normalized"": ""childhood brain cancer""
                     },
-                    ""pretty_url_name"": ""childhood-brain-cancer"",
-                    ""exact_match"": false
+                    ""pretty_url_name"": ""childhood-brain-cancer""
                 }
             }
         ]
@@ -50,9 +48,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 Label = "Childhood Brain Cancer",
                 Normalized = "childhood brain cancer"
             },
-            PrettyUrlName = "childhood-brain-cancer",
-            UniqueId = "C114967,C114964,C114972,C114963",
-            ExactMatch = false
+            PrettyUrlName = "childhood-brain-cancer"
         };
 
         public override int ExpectedNumberOfLoggingCalls => 0;

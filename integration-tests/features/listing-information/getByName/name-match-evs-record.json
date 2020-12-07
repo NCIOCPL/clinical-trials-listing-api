@@ -1,5 +1,4 @@
 {
-    "uniqueId": "C7715,C115292,C9306,C7707",
     "conceptId": [
         "C7715",
         "C115292",
@@ -10,6 +9,5 @@
         "label": "Soft Tissue Sarcoma",
         "normalized": "soft tissue sarcoma"
     },
-    "prettyUrlName": "soft-tissue-sarcoma",
-    "exactMatch": false
+    "prettyUrlName": "soft-tissue-sarcoma"
 }

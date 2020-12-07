@@ -14,12 +14,6 @@ namespace NCI.OCPL.Api.CTSListingPages
         public string[] ConceptId { get; set; }
 
         /// <summary>
-        /// A unique identifier for the ListingInfo object.
-        /// </summary>
-        [Keyword(Name = "unique_id")]
-        public string UniqueId { get; set; }
-
-        /// <summary>
         /// Data structure containing the name of the disease or intervention.
         /// </summary>
         [Nested(Name = "name")]
@@ -30,12 +24,5 @@ namespace NCI.OCPL.Api.CTSListingPages
         /// </summary>
         [Keyword(Name = "pretty_url_name")]
         public string PrettyUrlName { get; set; }
-
-        /// <summary>
-        /// Flag denoting whether this document should be used to satisfy a request when
-        /// it only matches a portion of the requested C-Codes.
-        /// </summary>
-        [Boolean(Name = "exact_match")]
-        public bool ExactMatch { get; set; }
     }
 }

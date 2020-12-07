@@ -53,15 +53,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 
             ListingInfo testRecord = new ListingInfo
             {
-                UniqueId = "C7884",
                 ConceptId = new string[] { "C7884" },
                 Name = new NameInfo
                 {
                     Label = "Recurrent Adult Brain Tumors",
                     Normalized = "recurrent adult brain tumors"
                 },
-                PrettyUrlName = "recurrent-adult-brain",
-                ExactMatch = true
+                PrettyUrlName = "recurrent-adult-brain"
             };
 
             Mock<IListingInfoQueryService> querySvc = new Mock<IListingInfoQueryService>();

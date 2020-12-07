@@ -23,13 +23,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         /// Test to verify that Elasticsearch requests are being assembled correctly.
         /// </summary>
         [Fact]
-        public async void GetByPrettyUrlName_TestRequestSetup()
+        public async void GetByIds_TestRequestSetup()
         {
-            const string theName = "recurrent-adult-brain";
+            string[] codes = new string[] { "C115270", "C8578", "C9092", "C3017" };
             JObject expectedRequest = JObject.Parse(
 @"{
     ""query"": {
-        ""term"": { ""pretty_url_name"": { ""value"": ""recurrent-adult-brain"" } }
+        ""terms"": { ""concept_id"": [ ""C115270"", ""C8578"", ""C9092"", ""C3017"" ] }
     }
 }
 ");
@@ -66,7 +66,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 
             // For this test, we don't really care that this returns anything, only that the intercepting connection
             // sets up the request correctly.
-            await query.GetByPrettyUrlName(theName);
+            await query.GetByIds(codes);
 
             Assert.Equal("/listingpagev1/ListingInfo/_search", esURI.AbsolutePath);
             Assert.Equal("application/json", esContentType);
@@ -78,7 +78,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         /// /// Test failure to connect to and retrieve response from API.
         /// </summary>
         [Fact]
-        public async void GetByPrettyUrlName_TestAPIConnectionFailure()
+        public async void GetByIds_TestAPIConnectionFailure()
         {
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
             conn.RegisterRequestHandlerForType<Nest.SearchResponse<ListingInfo>>((req, res) =>
@@ -108,7 +108,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 
             ESListingInfoQueryService queryService = new ESListingInfoQueryService(client, clientOptions, _mockLogger.Object);
 
-            APIInternalException ex = await Assert.ThrowsAsync<APIInternalException>(() => queryService.GetByPrettyUrlName("chicken"));
+            APIInternalException ex = await Assert.ThrowsAsync<APIInternalException>(() => queryService.GetByIds(new string[] { "chicken" }));
 
             // Verify the correct error message is thrown the correct number of times.
             _mockLogger.Verify(
@@ -127,7 +127,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         /// Test receiving an invalid response from ES.
         /// </summary>
         [Fact]
-        public async void GetByPrettyUrlName_TestInvalidResponse()
+        public async void GetByIds_TestInvalidResponse()
         {
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
             conn.RegisterRequestHandlerForType<Nest.SearchResponse<ListingInfo>>((req, res) =>
@@ -157,14 +157,14 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 
             ESListingInfoQueryService queryService = new ESListingInfoQueryService(client, clientOptions, _mockLogger.Object);
 
-            APIInternalException ex = await Assert.ThrowsAsync<APIInternalException>(() => queryService.GetByPrettyUrlName("chicken"));
+            APIInternalException ex = await Assert.ThrowsAsync<APIInternalException>(() => queryService.GetByIds(new string[] { "chicken" }));
 
             // Verify the correct error message is thrown the correct number of times.
             _mockLogger.Verify(
                 x => x.Log(
                     It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Error),
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString() == "Invalid response when searching for pretty URL name 'chicken'."),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == "Invalid response when searching for c-code(s) 'chicken'."),
                     It.IsAny<Exception>(),
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
                 ),
@@ -172,18 +172,18 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             );
         }
 
-        public static IEnumerable<object[]> GetByPrettyUrlName_Scenarios = new[]
+        public static IEnumerable<object[]> GetByIds_Scenarios = new[]
         {
-            new object[] { new GetByPrettyUrlName_NoResults() },
-            new object[] { new GetByPrettyUrlName_SingleResult() },
-            new object[] { new GetByPrettyUrlName_MultipleResults() }
+            new object[] { new GetByIds_NoResults() },
+            new object[] { new GetByIds_SingleResult() },
+            new object[] { new GetByIds_MultipleResults() }
         };
 
         /// <summary>
         /// Test to verify handling when calls are successful.
         /// </summary>
-        [Theory, MemberData(nameof(GetByPrettyUrlName_Scenarios))]
-        public async void GetByPrettyUrlName_TestValidResponse(GetByPrettyUrlName_BaseScenario data)
+        [Theory, MemberData(nameof(GetByIds_Scenarios))]
+        public async void GetByIds_TestValidResponse(GetByIds_BaseScenario data)
         {
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
             conn.RegisterRequestHandlerForType<Nest.SearchResponse<ListingInfo>>((req, res) =>
@@ -214,7 +214,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             ESListingInfoQueryService query = new ESListingInfoQueryService(client, clientOptions, _mockLogger.Object);
 
             // The actual input doesn't matter for this test since the result is pre-determined.
-            ListingInfo result = await query.GetByPrettyUrlName("chicken");
+            ListingInfo[] result = await query.GetByIds(new string[] { "C1234" });
 
             Assert.Equal(data.ExpectedData, result, new ListingInformationComparer());
 
@@ -223,7 +223,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 x => x.Log(
                     It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Warning),
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Found multiple records for pretty URL name 'chicken'."),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Multiple records found when searching for c-code(s) 'C1234'."),
                     It.IsAny<Exception>(),
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
                 ),

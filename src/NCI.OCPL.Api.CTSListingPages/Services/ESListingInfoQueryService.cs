@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
@@ -51,7 +52,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         {
             // Set up the SearchRequest to send to elasticsearch.
             Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
-            Types types = Types.Type(new string[]{ "ListingInfo" });
+            Types types = Types.Type(new string[] { "ListingInfo" });
             SearchRequest request = new SearchRequest(index, types)
             {
                 Query = new TermQuery { Field = "pretty_url_name", Value = prettyUrlName.ToString() }
@@ -79,17 +80,70 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
             ListingInfo record = null;
 
             // If there is are any records in the response, the lookup was successful.
-            if(response.Total > 0)
+            if (response.Total > 0)
             {
                 record = response.Documents.First();
 
-                if( response.Total > 1)
+                if (response.Total > 1)
                 {
                     _logger.LogWarning($"Found multiple records for pretty URL name '{prettyUrlName}'.");
                 }
             }
 
             return record;
+        }
+
+        /// <summary>
+        /// Retrieve the name and URL data for EVS concept(s) with a c-code (list) exactly or partially matching the name parameter.
+        /// </summary>
+        /// <param name="ccodes">The c-code list of the record to be retrieved.</param>
+        /// <returns>An array of ListingInfo objects or null if exact or partial matches are not found.</returns>
+        public async Task<ListingInfo[]> GetByIds(string[] ccodes)
+        {
+            // Set up the SearchRequest to send to elasticsearch.
+            Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
+            Types types = Types.Type(new string[] { "ListingInfo" });
+            SearchRequest request = new SearchRequest(index, types)
+            {
+                Query = new TermsQuery { Field = "concept_id", Terms = ccodes }
+            };
+
+            ISearchResponse<ListingInfo> response = null;
+            try
+            {
+                response = await _elasticClient.SearchAsync<ListingInfo>(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error searching index: '{this._apiOptions.ListingInfoAliasName}'.");
+                throw new APIInternalException("errors occured");
+            }
+
+            if (!response.IsValid)
+            {
+                String msg = $"Invalid response when searching for c-code(s) '{String.Join(",", ccodes)}'.";
+                _logger.LogError(msg);
+                _logger.LogError(response.DebugInformation);
+                throw new APIInternalException("errors occured");
+            }
+
+            ListingInfo[] results = null;
+
+            // If there is one or more items in the response, the lookup was successful.
+            if (response.Total > 0)
+            {
+                // Set the ListingInfo[] results to the returned documents.
+                results = response.Documents.ToArray();
+
+                // If there are more than one items in the response, long a warning. The controller will handle the error.
+                if (response.Total > 1)
+                {
+                    String msg = $"Multiple records found when searching for c-code(s) '{String.Join(",", ccodes)}'.";
+                    _logger.LogWarning(msg);
+                }
+            }
+
+            return results;
         }
     }
 }

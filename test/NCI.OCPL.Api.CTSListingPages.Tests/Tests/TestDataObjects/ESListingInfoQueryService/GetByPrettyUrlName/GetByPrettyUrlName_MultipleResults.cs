@@ -31,13 +31,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                         ""C789"",
                         ""C876""
                     ],
-                    ""unique_id"": ""C123,C456,C789,C876"",
                     ""name"": {
                         ""label"": ""First item with this pretty url"",
                         ""normalized"": ""first item with  this pretty url""
                     },
-                    ""pretty_url_name"": ""duplicated-pretty-url"",
-                    ""exact_match"": true
+                    ""pretty_url_name"": ""duplicated-pretty-url""
                 }
             },
             {
@@ -52,13 +50,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                         ""C789"",
                         ""C876""
                     ],
-                    ""unique_id"": ""C123,C456,C789,C876"",
                     ""name"": {
                         ""label"": ""Second item with this pretty url"",
                         ""normalized"": ""second item with  this pretty url""
                     },
-                    ""pretty_url_name"": ""duplicated-pretty-url"",
-                    ""exact_match"": true
+                    ""pretty_url_name"": ""duplicated-pretty-url""
                 }
             }
         ]
@@ -73,9 +69,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 Label = "First item with this pretty url",
                 Normalized = "first item with  this pretty url"
             },
-            PrettyUrlName = "duplicated-pretty-url",
-            UniqueId = "C123,C456,C789,C876",
-            ExactMatch = true
+            PrettyUrlName = "duplicated-pretty-url"
         };
 
         public override int ExpectedNumberOfLoggingCalls => 1;
