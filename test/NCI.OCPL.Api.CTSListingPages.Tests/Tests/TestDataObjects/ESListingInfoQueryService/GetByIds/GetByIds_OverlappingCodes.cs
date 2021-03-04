@@ -1,8 +1,13 @@
 namespace NCI.OCPL.Api.CTSListingPages.Tests
 {
-    class GetByIds_SingleResult : GetByIds_BaseScenario
+    /// <summary>
+    /// Test handling for a request with fewer c-codes than the response, but
+    /// has one the response does not.
+    /// </summary>
+    class GetByIds_OverlappingCodes : GetByIds_BaseScenario
     {
-        public override string[] InputCCodes => new string[] { "C8578", "C115270" };
+        // C12345 is "extra"
+        public override string[] InputCCodes => new string[] { "C9092", "C12345", "C3017"};
 
         public override string MockESResponse => @"
 {
@@ -42,16 +47,6 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
     }
 }";
 
-        public override ListingInfo[] ExpectedData => new ListingInfo[] {
-            new ListingInfo {
-                ConceptId = new string[] { "C115270", "C8578", "C9092", "C3017" },
-                Name = new NameInfo
-                {
-                    Label = "Ependymoma",
-                    Normalized = "ependymoma"
-                },
-                PrettyUrlName = "ependymoma"
-            }
-        };
+        public override ListingInfo[] ExpectedData => null;
     }
 }

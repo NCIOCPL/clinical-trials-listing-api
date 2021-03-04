@@ -2,6 +2,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 {
     class GetByIds_NoResults : GetByIds_BaseScenario
     {
+        public override string[] InputCCodes => new string[] {"C1234"};
+
         public override string MockESResponse => @"
 {
     ""took"": 223,
@@ -20,7 +22,5 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 }";
 
         public override ListingInfo[] ExpectedData => null;
-
-        public override int ExpectedNumberOfLoggingCalls => 0;
     }
 }

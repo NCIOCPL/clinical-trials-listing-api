@@ -5,6 +5,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
     /// </summary>
     class GetByIds_MultipleResults : GetByIds_BaseScenario
     {
+        public override string[] InputCCodes => new string[] { "C4872" };
+
         public override string MockESResponse => @"
 {
     ""took"": 20,
@@ -76,7 +78,5 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 PrettyUrlName = "breast-cancer"
             }
         };
-
-        public override int ExpectedNumberOfLoggingCalls => 1;
     }
 }
