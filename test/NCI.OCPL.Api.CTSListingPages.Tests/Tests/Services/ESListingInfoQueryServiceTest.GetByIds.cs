@@ -75,7 +75,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         }
 
         /// <summary>
-        /// /// Test failure to connect to and retrieve response from API.
+        /// Test failure to connect to and retrieve response from Elasticsearch.
         /// </summary>
         [Fact]
         public async void GetByIds_TestAPIConnectionFailure()
@@ -176,7 +176,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         {
             new object[] { new GetByIds_NoResults() },
             new object[] { new GetByIds_SingleResult() },
-            new object[] { new GetByIds_MultipleResults() }
+            new object[] { new GetByIds_MultipleResults() },
+            new object[] { new GetByIds_ExcessCodes() },
+            new object[] { new GetByIds_OverlappingCodes() },
+            new object[] { new GetByIds_OverlappingCodesMultipleRecords() },
+            new object[] { new GetByIds_OverlappingCodesMultipleRecords2() },
         };
 
         /// <summary>
@@ -201,34 +205,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
 
-            // Verify appropriate logging happens.
-            Mock<ILogger<ESListingInfoQueryService>> _mockLogger = new Mock<ILogger<ESListingInfoQueryService>>();
-            _mockLogger.Setup(log => log.Log(
-                It.IsAny<Microsoft.Extensions.Logging.LogLevel>(),
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>())
-            );
+            ESListingInfoQueryService query = new ESListingInfoQueryService(client, clientOptions, new NullLogger<ESListingInfoQueryService>());
 
-            ESListingInfoQueryService query = new ESListingInfoQueryService(client, clientOptions, _mockLogger.Object);
-
-            // The actual input doesn't matter for this test since the result is pre-determined.
-            ListingInfo[] result = await query.GetByIds(new string[] { "C1234" });
+            ListingInfo[] result = await query.GetByIds(data.InputCCodes);
 
             Assert.Equal(data.ExpectedData, result, new ListingInformationComparer());
-
-            // Verify logging happens only once if there are multiple results and not at all if there are multiple.
-            _mockLogger.Verify(
-                x => x.Log(
-                    It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Warning),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Multiple records found when searching for c-code(s) 'C1234'."),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
-                ),
-                Times.Exactly(data.ExpectedNumberOfLoggingCalls)
-            );
         }
     }
 }
