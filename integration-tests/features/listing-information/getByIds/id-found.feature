@@ -13,10 +13,11 @@ Feature: Get listing information records by specifying their c-code(s).
         And match response == read( expected )
 
         Examples:
-            | code                                           | expected                                                |
-            | ['C114967', 'C114964', 'C114972', 'C114963']   | id-found-all-codes-childhood-brain-cancer.json          |
-            | ['C114964', 'C114963']                         | id-found-two-missing-codes-childhood-brain-cancer.json  |
-            | C114972                                        | id-found-single-code-childhood-brain-cancer.json        |
-            | ['C3359', 'C7705', 'C9130', 'C115332']         | id-found-all-codes-rhabdomyosarcoma.json                |
-            | C3359                                          | id-found-single-code-rhabdomyosarcoma.json              |
-            | ['C9130', 'C115332', 'C7705']                  | id-found-single-missing-code-rhabdomyosarcoma.json      |
+            # Verify retrieving the same record with a varying number of c-codes
+            | code                                          | expected                                                |
+            | ['C7707', 'C7715', 'C9306', 'C115292']        | id-found-soft-tissue-sarcoma.json  |
+            | ['C7715', 'C9306']                            | id-found-soft-tissue-sarcoma.json  |
+            | 'C115292'                                     | id-found-soft-tissue-sarcoma.json  |
+            | ['C3359', 'C7705', 'C9130']                   | id-found-rhabdomyosarcoma.json     |
+            | C3359                                         | id-found-rhabdomyosarcoma.json     |
+            | ['C7705', 'C9130']                            | id-found-rhabdomyosarcoma.json     |

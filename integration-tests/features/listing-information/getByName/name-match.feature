@@ -11,9 +11,8 @@ Feature: Get listing information records by specifying their pretty URL name.
         And match response == read( expected )
 
         Examples:
-            | prettyName                | expected                             |
+            | prettyName                | expected                              |
             # Note: Multiple records with a single pretty-url name is a data error, and as the
             # test data is a snapshot of production, it's not practical to create a deliberate
             # test for a multiple record return.
-            | adult-soft-tissue-sarcoma | name-match-overridden-record.json          |
-            | soft-tissue-sarcoma       | name-match-evs-record.json   |
+            | soft-tissue-sarcoma       | name-match-record.json                |

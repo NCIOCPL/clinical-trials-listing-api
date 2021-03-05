@@ -1,16 +1,16 @@
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "treatment", "id_string": "treatment", "label": "Treatment" }
+{"pretty_url_name": "treatment", "id_string": "treatment", "label": "Treatment"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "other", "id_string": "other", "label": "Other" }
+{"pretty_url_name": "other", "id_string": "other", "label": "Other"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "supportive-care", "id_string": "supportive_care", "label": "Supportive Care" }
+{"pretty_url_name": "supportive-care", "id_string": "supportive_care", "label": "Supportive Care"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "diagnostic", "id_string": "diagnostic", "label": "Diagnostic" }
+{"pretty_url_name": "diagnostic", "id_string": "diagnostic", "label": "Diagnostic"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "prevention", "id_string": "prevention", "label": "Prevention" }
+{"pretty_url_name": "prevention", "id_string": "prevention", "label": "Prevention"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "basic-science", "id_string": "basic_science", "label": "Basic Science" }
+{"pretty_url_name": "basic-science", "id_string": "basic_science", "label": "Basic Science"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "health-services-research", "id_string": "health_services_research", "label": "Health Services Research" }
+{"pretty_url_name": "health-services-research", "id_string": "health_services_research", "label": "Health Services Research"}
 {"index": {"_index": "trialtypeinfov1", "_type": "TrialTypeInfo"}}
-{"pretty_url_name": "screening", "id_string": "screening", "label": "Screening" }
+{"pretty_url_name": "screening", "id_string": "screening", "label": "Screening"}

@@ -18,8 +18,6 @@ Feature: Expected failures
             | 404       | chicken             | errors-invalid-code.json                           |
             | 404       | C0000               | errors-nonexistent-code.json                       |
             | 404       | ['C0000', 'C0001']  | errors-multiple-nonexistent-codes.json             |
-            | 409       | C7707               | errors-multiple-soft-tissue-sarcoma.json           |
-            | 409       | C7884               | errors-multiple-recurrent-brain-neoplasm.json      |
 
 
     Scenario Outline: Validate no result returned when request contains a c-code not found in the record.
