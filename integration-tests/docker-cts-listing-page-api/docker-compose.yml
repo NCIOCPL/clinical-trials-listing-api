@@ -2,12 +2,11 @@ version: "3.7"
 
 services:
     elasticsearch:
-        image: elasticsearch:5.6.16
+        image: elasticsearch:7.9.2
         ## All of the ES settings can be set via the environment
         ## vars.
         environment:
-            - discovery.zen.ping.unicast.hosts=["127.0.0.1"]
-            - discovery.zen.minimum_master_nodes=1
+            - discovery.type=single-node
             - ES_JAVA_OPTS=-Xms750m -Xmx750m
         ## These exposed ports are for debugging only. .NET +
         ## Docker + MacOS == bad scene. (.NET always wants to

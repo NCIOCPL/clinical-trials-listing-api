@@ -71,7 +71,10 @@ jobs:
     needs: test_build_release
     services:
       elasticsearch:
-        image: elasticsearch:5.6.16
+        image: elasticsearch:7.9.2
+        env:
+          ## Pass elasticsearch options via environment variables.
+          discovery.type: single-node
         ports:
           ## NOTE: This will be exposed as a random port referenced below by job.services.elasticsearch.ports[9200]
           - 9200/tcp
