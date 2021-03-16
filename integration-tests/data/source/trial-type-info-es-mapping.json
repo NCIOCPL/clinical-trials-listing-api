@@ -17,18 +17,18 @@
         }
     },
     "mappings": {
-        "TrialTypeInfo": {
-            "_all":         { "enabled": false },
-            "properties":   {
-                "pretty_url_name":  {
-                                        "type": "keyword",
-                                        "normalizer": "caseinsensitive_normalizer"
-                                    },
-                "id_string":        {
-                                        "type": "keyword",
-                                        "normalizer": "caseinsensitive_normalizer"
-                                    },
-                "label":            { "type": "keyword"    }
+        "dynamic": "strict",
+        "properties": {
+            "pretty_url_name": {
+                "type": "keyword",
+                "normalizer": "caseinsensitive_normalizer"
+            },
+            "id_string": {
+                "type": "keyword",
+                "normalizer": "caseinsensitive_normalizer"
+            },
+            "label": {
+                "type": "keyword"
             }
         }
     }

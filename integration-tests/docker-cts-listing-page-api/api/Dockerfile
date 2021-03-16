@@ -13,7 +13,7 @@ COPY ./integration-tests/docker-cts-listing-page-api/api/build/appsettings.intte
 COPY ./integration-tests/docker-cts-listing-page-api/api/build/hosting.json .
 ## This does not need to wait for the loader or other resources.
 ## Any integration tests will need to wait for the API to report being healthy
-EXPOSE 5001
+EXPOSE 5000
 ENV ASPNETCORE_ENVIRONMENT=inttest
 ENV ASPNETCORE_URLS="http://*:5000"
 ENTRYPOINT ["dotnet", "NCI.OCPL.Api.CTSListingPages.dll"]

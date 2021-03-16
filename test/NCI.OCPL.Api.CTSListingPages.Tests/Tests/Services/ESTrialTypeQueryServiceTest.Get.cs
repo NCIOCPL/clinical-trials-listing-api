@@ -55,12 +55,12 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 res.StatusCode = 200;
 
                 esURI = req.Uri;
-                esContentType = req.ContentType;
+                esContentType = req.RequestMimeType;
                 esMethod = req.Method;
                 requestBody = conn.GetRequestPost(req);
             });
 
-            // The URI does not matter, an InMemoryConnection never requests from the server.
+            // The URI does not matter, an intercepting connector never requests from the server.
             var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
 
             var connectionSettings = new ConnectionSettings(pool, conn);
@@ -75,7 +75,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             // sets up the request correctly.
             await query.Get(theName);
 
-            Assert.Equal("/trialtypeinfov1/TrialTypeInfo/_search", esURI.AbsolutePath);
+            Assert.Equal("/trialtypeinfov1/_search", esURI.AbsolutePath);
             Assert.Equal("application/json", esContentType);
             Assert.Equal(HttpMethod.POST, esMethod);
             Assert.Equal(expectedRequest, requestBody, new JTokenEqualityComparer());
@@ -93,7 +93,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
 
             });
 
-            // While this has a URI, it does not matter, an InMemoryConnection never requests
+            // While this has a URI, it does not matter, an intercepting connector never requests
             // from the server.
             var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
 
@@ -128,7 +128,6 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 ),
                 Times.Once
             );
-            // _mockLogger.Verify(x => x.Log(Microsoft.Extensions.Logging.LogLevel.Error, It.IsAny<Exception>(), "Invalid response when searching for pretty URL name or identifier 'chicken'."), Times.Once);
         }
 
         public static IEnumerable<object[]> Get_Success_Scenarios = new[]
@@ -151,7 +150,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 res.StatusCode = 200;
             });
 
-            // The URI does not matter, an InMemoryConnection never requests from the server.
+            // The URI does not matter, an intercepting connector never requests from the server.
             var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
 
             var connectionSettings = new ConnectionSettings(pool, conn);

@@ -52,8 +52,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         {
             // Set up the SearchRequest to send to elasticsearch.
             Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
-            Types types = Types.Type(new string[] { "ListingInfo" });
-            SearchRequest request = new SearchRequest(index, types)
+            SearchRequest request = new SearchRequest(index)
             {
                 Query = new TermQuery { Field = "pretty_url_name", Value = prettyUrlName.ToString() }
             };
@@ -102,8 +101,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         {
             // Set up the SearchRequest to send to elasticsearch.
             Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
-            Types types = Types.Type(new string[] { "ListingInfo" });
-            SearchRequest request = new SearchRequest(index, types)
+            SearchRequest request = new SearchRequest(index)
             {
                 Query = new TermsQuery { Field = "concept_id", Terms = ccodes }
             };

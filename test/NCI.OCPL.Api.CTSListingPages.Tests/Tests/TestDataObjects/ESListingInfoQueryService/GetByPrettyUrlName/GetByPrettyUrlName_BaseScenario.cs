@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace NCI.OCPL.Api.CTSListingPages.Tests
 {
     public abstract class GetByPrettyUrlName_BaseScenario

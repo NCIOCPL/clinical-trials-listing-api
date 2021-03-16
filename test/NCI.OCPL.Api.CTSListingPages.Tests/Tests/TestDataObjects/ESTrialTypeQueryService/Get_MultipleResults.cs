@@ -39,7 +39,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                     ""id_string"": ""treatment"",
                     ""label"": ""Treatment""
                 }
-            },
+            }
         ]
     }
 }";

@@ -8,8 +8,9 @@
     <Compile Remove="Class1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NEST" Version="5.6.1" />
+    <PackageReference Include="NEST" Version="7.9.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 </Project>

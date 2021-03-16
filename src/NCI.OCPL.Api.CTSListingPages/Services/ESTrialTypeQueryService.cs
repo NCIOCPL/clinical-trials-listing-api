@@ -51,8 +51,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         {
             // Set up the SearchRequest to send to elasticsearch.
             Indices index = Indices.Index(new string[] { this._apiOptions.TrialTypeInfoAliasName });
-            Types types = Types.Type(new string[] { "TrialTypeInfo" });
-            SearchRequest request = new SearchRequest(index, types)
+            SearchRequest request = new SearchRequest(index)
             {
                 Query = new TermQuery { Field = "pretty_url_name", Value = name.ToString() } ||
                         new TermQuery { Field = "id_string", Value = name.ToString() }
@@ -79,7 +78,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
 
             TrialTypeInfo trialTypeInfo = null;
 
-            // If there is are any records in the response, the lookup was successful.
+            // If there are any records in the response, the lookup was successful.
             if (response.Total > 0)
             {
                 trialTypeInfo = response.Documents.First();
