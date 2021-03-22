@@ -29,7 +29,19 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             JObject expectedRequest = JObject.Parse(
 @"{
     ""query"": {
-        ""terms"": { ""concept_id"": [ ""C115270"", ""C8578"", ""C9092"", ""C3017"" ] }
+        ""terms_set"": {
+            ""concept_id"": {
+                ""minimum_should_match_script"": {
+                    ""source"": ""params.num_terms""
+                },
+                ""terms"": [
+                    ""C115270"",
+                    ""C8578"",
+                    ""C9092"",
+                    ""C3017""
+                ]
+            }
+        }
     }
 }
 ");
@@ -177,10 +189,6 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             new object[] { new GetByIds_NoResults() },
             new object[] { new GetByIds_SingleResult() },
             new object[] { new GetByIds_MultipleResults() },
-            new object[] { new GetByIds_ExcessCodes() },
-            new object[] { new GetByIds_OverlappingCodes() },
-            new object[] { new GetByIds_OverlappingCodesMultipleRecords() },
-            new object[] { new GetByIds_OverlappingCodesMultipleRecords2() },
         };
 
         /// <summary>

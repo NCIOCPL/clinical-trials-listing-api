@@ -103,7 +103,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
             Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
             SearchRequest request = new SearchRequest(index)
             {
-                Query = new TermsQuery { Field = "concept_id", Terms = ccodes }
+                Query = new TermsSetQuery {
+                    Field = "concept_id",
+                    Terms = ccodes,
+                    MinimumShouldMatchScript = new InlineScript("params.num_terms")
+                }
             };
 
             ISearchResponse<ListingInfo> response = null;
@@ -127,49 +131,12 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
 
             ListingInfo[] results = null;
 
-            // As of Elaticsearch v5.6.x, the terms query only tells us that there's an *overlap* between the requested
-            // list of c-codes and the ones which are actually present in the records. ES 7 adds the ability to specify
-            // a minimum amount of overlap (e.g. "the entire set I asked for"), but we don't have that yet. Instead,
-            // we have to add a step to remove the mismatch.  The way the loader is supposed to work, there should be
-            // no case of the same c-code appear in multiple records. Therefore, if anything matches, there should be
-            // at most one record.  So, if we find any record where not all requested codes are present, we discard
-            // the entire set.  Because "the entire set" is only supposed to be one record anyhow.
-
-            // If there is one or more items in the response, the lookup was successful.
-            if (response.Total > 0)
+            if(response.Documents.Count > 0)
             {
-                if(response.Documents.All(item => AllRequestedCodesPresent(ccodes, item.ConceptId)))
-                {
-                    // Set the ListingInfo[] results to the returned documents.
-                    results = response.Documents.ToArray();
-                }
+                results = response.Documents.ToArray();
             }
 
             return results;
-        }
-
-        /// <summary>
-        /// Helper method to verify that the set of codes requested is a subset of the list of
-        /// codes in a given record.
-        /// </summary>
-        /// <param name="requested">The requested list of c-codes</param>
-        /// <param name="actual">The actual list of c-codes</param>
-        /// <returns></returns>
-        public static bool AllRequestedCodesPresent(string[] requested, string[] actual)
-        {
-            // Simple case.
-            if(requested.Length > actual.Length)
-                return false;
-
-            // Create a hashset with uppercase version of all the actal codes.
-            HashSet<string> knownCodes = new HashSet<string>(
-                from code in actual select code.ToUpper()
-            );
-
-            // Check whether all codes from the requested list are in the known list.
-            bool allFound = requested.All(code => knownCodes.Contains(code.ToUpper()));
-
-            return allFound;
         }
     }
 }
