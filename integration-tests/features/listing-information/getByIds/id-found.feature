@@ -4,7 +4,7 @@ Feature: Get listing information records by specifying their c-code(s).
         * url apiHost
 
     Scenario Outline: Validate the query results when matching against c-code(s).
-
+        for code list: '<code>'
 
         Given path 'listing-information', 'get'
         And params { ccode: <code> }
