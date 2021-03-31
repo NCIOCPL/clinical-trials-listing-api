@@ -122,7 +122,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.GetByIds(ccodes)
             );
 
-            Assert.Equal("Could not find codes 'C0000'.", exception.Message);
+            Assert.Equal("Could not find the requested codes.", exception.Message);
             Assert.Equal(404, exception.HttpStatusCode);
         }
 
@@ -170,7 +170,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.GetByIds(ccodes)
             );
 
-            Assert.Equal("Multiple records found for codes 'C4872'.", exception.Message);
+            Assert.Equal("Multiple records found.", exception.Message);
             Assert.Equal(409, exception.HttpStatusCode);
         }
 

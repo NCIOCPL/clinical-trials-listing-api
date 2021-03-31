@@ -4,6 +4,7 @@ Feature: Fail to retrieve trial type info by specifying a nonexistent name.
         * url apiHost
 
     Scenario Outline: Validate no result found when matching against name.
+        for name '<name>'
 
         Given path 'trial-type', name
         When method get

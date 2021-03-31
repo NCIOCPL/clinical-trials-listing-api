@@ -62,7 +62,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
             }
 
             if (result == null)
-                throw new APIErrorException(404, $"Could not find pretty URL name '{prettyUrlName}'.");
+                throw new APIErrorException(404, "Could not find the requested pretty URL name.");
 
             return result;
         }
@@ -91,10 +91,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
             }
 
             if (results == null || results.Length == 0)
-                throw new APIErrorException(404, $"Could not find codes '{string.Join(",", ccode)}'.");
+                throw new APIErrorException(404, "Could not find the requested codes.");
 
             if (results.Length > 1)
-                throw new APIErrorException(409, $"Multiple records found for codes '{string.Join(",", ccode)}'.");
+            {
+                _logger.LogWarning($"Multiple records found for code(s): '{String.Join(',', ccode)}'.");
+                throw new APIErrorException(409, "Multiple records found.");
+            }
 
             return results.First();
         }
