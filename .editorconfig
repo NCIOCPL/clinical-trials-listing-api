@@ -10,5 +10,5 @@ indent_style = space
 
 end_of_line = lf
 
-[*.yml]
+[*.yml;*.config]
 indent_size = 2
