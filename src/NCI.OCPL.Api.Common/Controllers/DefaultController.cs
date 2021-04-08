@@ -12,6 +12,7 @@ namespace NCI.OCPL.Api.Common.Controllers
   /// security risk. Perhaps this can be removed one day.
   /// </summary>
   [Route("/")]
+  [ApiExplorerSettings(IgnoreApi = true)]
   public class DefaultController : ControllerBase
   {
 
