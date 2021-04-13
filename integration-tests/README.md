@@ -2,7 +2,7 @@
 ## Steps to Run Locally
 1. Have docker installed
 2. Open a command prompt
-3. `cd <REPO_ROOT>/integration-tests/docker-drug-api`
+3. `cd <REPO_ROOT>/integration-tests/docker-cts-listing-page-api`
 4. `docker-compose up --force-recreate`
    * This is being run without the detached (-d) option so that it can be easier to stop. You can choose however you want to run it.
 5. `cd <REPO_ROOT>/integration-tests`
