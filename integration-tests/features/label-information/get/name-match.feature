@@ -4,6 +4,7 @@ Feature: Get trial type info by specifying the name.
         * url apiHost
 
     Scenario Outline: Validate the query results when matching against name.
+        for name: '<name>'
 
         Given path 'trial-type', name
         When method get

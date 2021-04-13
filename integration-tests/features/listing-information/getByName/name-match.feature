@@ -4,6 +4,7 @@ Feature: Get listing information records by specifying their pretty URL name.
         * url apiHost
 
     Scenario Outline: Validate the query results when matching against a pretty-url name.
+        for pretty name: '<prettyName>'
 
         Given path 'listing-information', prettyName
         When method get

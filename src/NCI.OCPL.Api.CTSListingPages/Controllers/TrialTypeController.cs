@@ -59,7 +59,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
             }
 
             if (result == null)
-                throw new APIErrorException(404, $"Could not find label or identifier '{name}'.");
+                throw new APIErrorException(404, "Could not find the requested label or identifier.");
 
             return result;
         }
