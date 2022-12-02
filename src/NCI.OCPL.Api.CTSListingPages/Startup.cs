@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,12 +20,12 @@ namespace NCI.OCPL.Api.CTSListingPages
     /// </summary>
     public class Startup : NciStartupBase
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:NCI.OCPL.Api.CTSListingPages.Startup"/> class.
-        /// </summary>
-        /// <param name="env">Env.</param>
-        public Startup(IHostingEnvironment env)
-            : base(env) { }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="T:NCI.OCPL.Api.CTSListingPages.Startup"/> class.
+    /// </summary>
+    /// <param name="configuration">Injected configuration object</param>
+    public Startup(IConfiguration configuration)
+            : base(configuration) { }
 
 
         /*****************************
@@ -64,9 +63,8 @@ namespace NCI.OCPL.Api.CTSListingPages
         /// <returns>The configure.</returns>
         /// <param name="app">App.</param>
         /// <param name="env">Env.</param>
-        /// <param name="loggerFactory">Logger.</param>
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        protected override void ConfigureAppSpecific(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        protected override void ConfigureAppSpecific(IApplicationBuilder app, IWebHostEnvironment env)
         {
             return;
         }

@@ -330,8 +330,7 @@ ASALocalRun/
 # NVidia Nsight GPU debugger configuration file
 *.nvuser
 
-.vscode/launch.json
-.vscode/tasks.json
+.vscode/
 coverage.json
 lcov.info
 

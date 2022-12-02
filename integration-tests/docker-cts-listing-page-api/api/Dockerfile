@@ -1,19 +1,15 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS build-env
-COPY ./src /app/src
-COPY ./test /app/test
-COPY ./cts-dynamic-listing-api.sln /app/app.sln
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 WORKDIR /app
-RUN dotnet publish -c Release -o /app/out
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.1
-WORKDIR /app
-COPY --from=build-env /app/out .
-COPY ./integration-tests/docker-cts-listing-page-api/api/build/appsettings.inttest.json .
-COPY ./integration-tests/docker-cts-listing-page-api/api/build/hosting.json .
-## This does not need to wait for the loader or other resources.
-## Any integration tests will need to wait for the API to report being healthy
-EXPOSE 5000
+# Get the NIH Root certificates and install them so we work on VPN
+# Download from https://ocio.nih.gov/Smartcard/Pages/PKI_chain.aspx
+RUN mkdir /usr/local/share/ca-certificates/nih \
+    && curl -o /usr/local/share/ca-certificates/nih/NIH-DPKI-ROOT-1A-base64.crt https://ocio.nih.gov/Smartcard/Documents/Certificates/NIH-DPKI-ROOT-1A-base64.cer \
+    && curl -o /usr/local/share/ca-certificates/nih/NIH-DPKI-CA-1A-base64.crt https://ocio.nih.gov/Smartcard/Documents/Certificates/NIH-DPKI-CA-1A-base64.cer \
+    && update-ca-certificates
+
+EXPOSE 5001
 ENV ASPNETCORE_ENVIRONMENT=inttest
 ENV ASPNETCORE_URLS="http://*:5000"
-ENTRYPOINT ["dotnet", "NCI.OCPL.Api.CTSListingPages.dll"]
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENTRYPOINT ["dotnet", "watch", "--project", "src/NCI.OCPL.Api.CTSListingPages", "run"]

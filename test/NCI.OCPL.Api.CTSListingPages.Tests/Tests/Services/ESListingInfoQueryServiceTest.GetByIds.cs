@@ -50,7 +50,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             string esContentType = String.Empty;
             HttpMethod esMethod = HttpMethod.DELETE; // Basically, something other than the expected value.
 
-            JObject requestBody = null;
+            JToken requestBody = null;
 
             ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
             conn.RegisterRequestHandlerForType<Nest.SearchResponse<ListingInfo>>((req, res) =>

@@ -1,30 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
-
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\NCI.OCPL.Api.Common\NCI.OCPL.Api.Common.csproj" />
-        <ProjectReference Include="..\..\src\NCI.OCPL.Api.Common.Testing\NCI.OCPL.Api.Common.Testing.csproj" />
         <ProjectReference Include="..\..\src\NCI.OCPL.Api.CTSListingPages\NCI.OCPL.Api.CTSListingPages.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.msbuild" Version="2.8.1">
+        <PackageReference Include="coverlet.msbuild" Version="3.2.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-        <PackageReference AllowExplicitVersion="True" Include="Microsoft.AspNetCore.App" Version="2.1.4">
-            <PrivateAssets Condition="'%(PackageReference.Version)' == ''">all</PrivateAssets>
-            <Publish Condition="'%(PackageReference.Version)' == ''">true</Publish>
-        </PackageReference>
-        <PackageReference Include="xunit" Version="2.4.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-        <PackageReference Include="Moq" Version="4.13.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.*" />
+        <PackageReference Include="xunit" Version="2.4.*" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.*" />
+        <PackageReference Include="Moq" Version="4.13.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NCI.OCPL.Api.Common" Version="2.0.*" />
+        <PackageReference Include="NCI.OCPL.Api.Common.Testing" Version="2.0.*" />
     </ItemGroup>
 
 </Project>
