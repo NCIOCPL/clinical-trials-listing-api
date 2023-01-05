@@ -14,10 +14,12 @@ Feature: Expected failures
 
         Examples:
             # Note: Multiple records for an ID or set of IDs should not happen but are possible.
-            | exStatus  | code                | expected                                           |
-            | 404       | chicken             | errors-invalid-code.json                           |
-            | 404       | C0000               | errors-nonexistent-code.json                       |
-            | 404       | ['C0000', 'C0001']  | errors-multiple-nonexistent-codes.json             |
+            | exStatus  | code                                            | expected                     |
+            | 400       | chicken                                         | errors-invalid-format.json   |
+            | 400       | evil-name&quot;<script>alert(\"evil\")</script> | errors-invalid-format.json   |
+            | 400       | Robert'); Drop table students;--                | errors-invalid-format.json   |
+            | 404       | C0000                                           | errors-nonexistent-code.json |
+            | 404       | ['C0000', 'C0001']                              | errors-nonexistent-code.json |
 
 
     Scenario Outline: Validate no result returned when request contains a c-code not found in the record.

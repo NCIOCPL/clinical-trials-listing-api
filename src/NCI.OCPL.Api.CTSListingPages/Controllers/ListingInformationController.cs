@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,46 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
     [ApiController]
     public class ListingInformationController : ControllerBase
     {
+        /// <summary>
+        /// Missing prettyURlName parameter.
+        /// </summary>
+        public const string MISSING_PRETTY_URL_NAME_MESSAGE = "You must specify the prettyUrlName parameter.";
+
+        /// <summary>
+        /// prettyURlName not found.
+        /// </summary>
+        public const string PRETTY_URL_NAME_NOT_FOUND_MESSAGE = "Could not find the requested pretty URL name.";
+
+        /// <summary>
+        /// Invalid characters in pretty URL name.
+        /// </summary>
+        public const string PRETTY_URL_INVALID_MESSAGE = "Pretty URL name has invalid format.";
+
+        /// <summary>
+        /// Missing ccode parameter.
+        /// </summary>
+        public const string MISSING_CCODE_MESSAGE = "You must specify at least one ccode parameter.";
+
+        /// <summary>
+        /// Invalid ccode parameter.
+        /// </summary>
+        public const string INVALID_CCODE_MESSAGE = "One or more invalid ccode values found.";
+
+        /// <summary>
+        /// ccode not found.
+        /// </summary>
+        public const string CCODE_NOT_FOUND_MESSAGE = "Could not find the requested codes.";
+
+        /// <summary>
+        /// Multiple results for ccodes.
+        /// </summary>
+        public const string CCODE_MULTIPLE_RESULT_MESSAGE = "Multiple records found.";
+
+        /// <summary>
+        /// Generic internal error.
+        /// </summary>
+        public const string INTERNAL_ERROR_MESSAGE = "Errors occured.";
+
         /// <summary>
         /// The logger instance.
         /// </summary>
@@ -47,9 +88,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
         [HttpGet("{prettyUrlName}")]
         public async Task<ListingInfo> GetByPrettyUrlName(string prettyUrlName)
         {
-            if (String.IsNullOrWhiteSpace(prettyUrlName))
-                throw new APIErrorException(400, "You must specify the prettyUrlName parameter.");
+            Regex PrettyUrlValidator = new Regex("^[a-zA-Z0-9]+[a-zA-Z0-9\\-]*$", RegexOptions.IgnoreCase);
 
+            if (String.IsNullOrWhiteSpace(prettyUrlName))
+                throw new APIErrorException(400, MISSING_PRETTY_URL_NAME_MESSAGE);
+
+            if(!PrettyUrlValidator.IsMatch(prettyUrlName))
+                throw new APIErrorException(400, PRETTY_URL_INVALID_MESSAGE);
 
             ListingInfo result;
             try
@@ -58,11 +103,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
             }
             catch (APIInternalException)
             {
-                throw new APIErrorException(500, "Errors occured.");
+                throw new APIErrorException(500, INTERNAL_ERROR_MESSAGE);
             }
 
             if (result == null)
-                throw new APIErrorException(404, "Could not find the requested pretty URL name.");
+                throw new APIErrorException(404, PRETTY_URL_NAME_NOT_FOUND_MESSAGE);
 
             return result;
         }
@@ -76,9 +121,17 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
         [HttpGet("get")]
         public async Task<ListingInfo> GetByIds([FromQuery] string[] ccode)
         {
+            Regex CCodeValidator = new Regex("^C[0-9]+$", RegexOptions.IgnoreCase);
+
             // If the array is null, empty, or contains empty strings, throw an error.
             if (ccode == null || ccode.Length == 0 || ccode.Any(c => string.IsNullOrWhiteSpace(c)))
-                throw new APIErrorException(400, "You must specify at least one ccode parameter.");
+                throw new APIErrorException(400, MISSING_CCODE_MESSAGE);
+
+            // Now that we know there are no nulls, trim all the strings.
+            ccode = ccode.Select(c => c.Trim()).ToArray();
+
+            if( ccode.Any(c => !CCodeValidator.IsMatch(c)))
+                throw new APIErrorException(400, INVALID_CCODE_MESSAGE);
 
             ListingInfo[] results;
             try
@@ -87,16 +140,16 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
             }
             catch (APIInternalException)
             {
-                throw new APIErrorException(500, "Errors occured.");
+                throw new APIErrorException(500, INTERNAL_ERROR_MESSAGE);
             }
 
             if (results == null || results.Length == 0)
-                throw new APIErrorException(404, "Could not find the requested codes.");
+                throw new APIErrorException(404, CCODE_NOT_FOUND_MESSAGE);
 
             if (results.Length > 1)
             {
                 _logger.LogWarning($"Multiple records found for code(s): '{String.Join(',', ccode)}'.");
-                throw new APIErrorException(409, "Multiple records found.");
+                throw new APIErrorException(409, CCODE_MULTIPLE_RESULT_MESSAGE);
             }
 
             return results.First();

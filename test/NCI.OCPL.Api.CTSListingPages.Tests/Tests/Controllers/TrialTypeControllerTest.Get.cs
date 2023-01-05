@@ -43,18 +43,55 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 Times.Never
             );
 
-            Assert.Equal("You must specify the name parameter.", exception.Message);
+            Assert.Equal(TrialTypeController.MISSING_NAME_MESSAGE, exception.Message);
+            Assert.Equal(400, exception.HttpStatusCode);
+        }
+
+        /// <summary>
+        /// Verify correcting handling of names with invalid characters.
+        /// </summary>
+        [Theory]
+        [InlineData(new object[] { "name with spaces" })]
+        [InlineData(new object[] { "-name-with-leading-hyphen" })]
+        [InlineData(new object[] { "-name-with-leading-underscore" })]
+        [InlineData(new object[] { "evil-name&quot;<script>alert(\"evil\")</script>" })]
+        [InlineData(new object[] { "Robert'); Drop table students;--" })] // Bobby Tables
+        public async void Get_InvalidCharacters(string name)
+        {
+            Mock<ITrialTypeQueryService> querySvc = new Mock<ITrialTypeQueryService>();
+            querySvc.Setup(
+                svc => svc.Get(
+                    It.IsAny<string>()
+                )
+            )
+            .Returns(Task.FromResult(new TrialTypeInfo()));
+
+            TrialTypeController controller = new TrialTypeController(NullLogger<TrialTypeController>.Instance, querySvc.Object);
+
+            var exception = await Assert.ThrowsAsync<APIErrorException>(
+                () => controller.Get(name)
+            );
+
+            querySvc.Verify(
+                svc => svc.Get(It.IsAny<string>()),
+                Times.Never
+            );
+
+            Assert.Equal(TrialTypeController.NAME_INVALID_MESSAGE, exception.Message);
             Assert.Equal(400, exception.HttpStatusCode);
         }
 
         /// <summary>
         /// Verify correct handling of a valid name.
         /// </summary>
-        [Fact]
-        public async void Get_ValidName()
+        [Theory]
+        [InlineData(new object[] { "simplename" })]
+        [InlineData(new object[] { "name-with-hyphens" })]
+        [InlineData(new object[] { "name_with_underscores" })]
+        [InlineData(new object[] { "name-with-numbers_87" })]
+        [InlineData(new object[] { "999-435" })]
+        public async void Get_ValidName(string theName)
         {
-            const string theName = "basic-science";
-
             TrialTypeInfo testTrialTypeInfo = new TrialTypeInfo
             {
                 PrettyUrlName = "basic-science",
@@ -110,7 +147,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.Get(theName)
             );
 
-            Assert.Equal("Errors occured.", exception.Message);
+            Assert.Equal(TrialTypeController.INTERNAL_ERROR_MESSAGE, exception.Message);
             Assert.Equal(500, exception.HttpStatusCode);
         }
     }

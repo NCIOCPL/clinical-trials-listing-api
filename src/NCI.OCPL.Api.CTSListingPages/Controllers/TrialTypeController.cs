@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,27 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
     [Route("trial-type")]
     public class TrialTypeController : ControllerBase
     {
+        /// <summary>
+        /// Missing name parameter.
+        /// </summary>
+        public const string MISSING_NAME_MESSAGE = "You must specify the name parameter.";
+
+
+        /// <summary>
+        /// Invalid characters in name.
+        /// </summary>
+        public const string NAME_INVALID_MESSAGE = "Name parameter has invalid format.";
+
+        /// <summary>
+        /// No result for name.
+        /// </summary>
+        public const string NAME_NOT_FOUND_MESSAGE = "Could not find the requested label or identifier.";
+
+        /// <summary>
+        /// Generic internal error.
+        /// </summary>
+        public const string INTERNAL_ERROR_MESSAGE = "Errors occured.";
+
         /// <summary>
         /// The logger instance.
         /// </summary>
@@ -44,9 +66,12 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
         [HttpGet("{name}")]
         public async Task<TrialTypeInfo> Get(string name)
         {
-            if (String.IsNullOrWhiteSpace(name))
-                throw new APIErrorException(400, "You must specify the name parameter.");
+            Regex NameValidator = new Regex("^[a-zA-Z0-9]+[a-zA-Z0-9\\-_]*$", RegexOptions.IgnoreCase);
 
+            if (String.IsNullOrWhiteSpace(name))
+                throw new APIErrorException(400, MISSING_NAME_MESSAGE);
+            if(!NameValidator.IsMatch(name))
+                throw new APIErrorException(400, NAME_INVALID_MESSAGE);
 
             TrialTypeInfo result;
             try
@@ -55,11 +80,11 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
             }
             catch (APIInternalException)
             {
-                throw new APIErrorException(500, "Errors occured.");
+                throw new APIErrorException(500, INTERNAL_ERROR_MESSAGE);
             }
 
             if (result == null)
-                throw new APIErrorException(404, "Could not find the requested label or identifier.");
+                throw new APIErrorException(404, NAME_NOT_FOUND_MESSAGE);
 
             return result;
         }
