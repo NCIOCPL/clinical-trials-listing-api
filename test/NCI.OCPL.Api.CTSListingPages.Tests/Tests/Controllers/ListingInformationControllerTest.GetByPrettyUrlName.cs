@@ -12,7 +12,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
     public partial class ListingInformationControllerTest
     {
         /// <summary>
-        /// Verify correcting handling of invalid names.
+        /// Verify correct handling of invalid names.
         /// </summary>
         [Theory]
         [InlineData(new object[] { null })]
@@ -39,18 +39,54 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 Times.Never
             );
 
-            Assert.Equal("You must specify the prettyUrlName parameter.", exception.Message);
+            Assert.Equal(ListingInformationController.MISSING_PRETTY_URL_NAME_MESSAGE, exception.Message);
+            Assert.Equal(400, exception.HttpStatusCode);
+        }
+
+        /// <summary>
+        /// Verify correct handling of pretty URL names containing invalid characters.
+        /// </summary>
+        [Theory]
+        [InlineData(new object[] { "name with spaces" })]
+        [InlineData(new object[] { "name-with_underscore" })]
+        [InlineData(new object[] { "-name-with-leading-hyphen" })]
+        [InlineData(new object[] { "evil-name&quot;<script>alert(\"evil\")</script>" })]
+        [InlineData(new object[] { "Robert'); Drop table students;--" })] // Bobby Tables
+        public async void GetByPrettyUrlName_InvalidCharacters(string prettyUrlName)
+        {
+            Mock<IListingInfoQueryService> querySvc = new Mock<IListingInfoQueryService>();
+            querySvc.Setup(
+                svc => svc.GetByPrettyUrlName(
+                    It.IsAny<string>()
+                )
+            )
+            .Returns(Task.FromResult(new ListingInfo()));
+
+            ListingInformationController controller = new ListingInformationController(NullLogger<ListingInformationController>.Instance, querySvc.Object);
+
+            var exception = await Assert.ThrowsAsync<APIErrorException>(
+                () => controller.GetByPrettyUrlName(prettyUrlName)
+            );
+
+            querySvc.Verify(
+                svc => svc.GetByPrettyUrlName(It.IsAny<string>()),
+                Times.Never
+            );
+
+            Assert.Equal(ListingInformationController.PRETTY_URL_INVALID_MESSAGE, exception.Message);
             Assert.Equal(400, exception.HttpStatusCode);
         }
 
         /// <summary>
         /// Verify correct handling of a valid name.
         /// </summary>
-        [Fact]
-        public async void GetByPrettyUrlName_ValidName()
+        [Theory]
+        [InlineData(new object[] { "simplename" })]
+        [InlineData(new object[] { "name-with-hyphens" })]
+        [InlineData(new object[] { "name-with-numbers-87" })]
+        [InlineData(new object[] { "999-435" })]
+        public async void GetByPrettyUrlName_ValidName(string theName)
         {
-            const string theName = "recurrent-adult-brain";
-
             ListingInfo testRecord = new ListingInfo
             {
                 ConceptId = new string[] { "C7884" },
@@ -111,7 +147,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.GetByPrettyUrlName(theName)
             );
 
-            Assert.Equal("Errors occured.", exception.Message);
+            Assert.Equal(ListingInformationController.INTERNAL_ERROR_MESSAGE, exception.Message);
             Assert.Equal(500, exception.HttpStatusCode);
         }
 

@@ -7,6 +7,7 @@ using Moq;
 using Xunit;
 
 using NCI.OCPL.Api.Common;
+using NCI.OCPL.Api.Common.Testing;
 using NCI.OCPL.Api.CTSListingPages.Controllers;
 using System;
 
@@ -15,17 +16,17 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
     public partial class ListingInformationControllerTest
     {
         /// <summary>
-        /// Verify correcting handling of invalid c-codes.
+        /// Verify correct handling of invalid c-codes.
         /// </summary>
         [Theory]
         [InlineData(new object[] { null })] // Null...
         [InlineData(new object[] { new string[] { } })] // Empty array
         [InlineData(new object[] { new string[] { "" } })] // Single empty string in array
         [InlineData(new object[] { new string[] { null } })] // Single null in array
-        [InlineData(new object[] { new string[] { "C1234", "", "C5678" } })] // Array with an empty string among other valud strings
+        [InlineData(new object[] { new string[] { "C1234", "", "C5678" } })] // Array with an empty string among other valid strings
+        [InlineData(new object[] { new string[] { "C1234", " ", "C5678" } })] // Array with a blank string among other valid strings
         [InlineData(new object[] { new string[] { "C1234", null, "C5678" } })] // Array with a null value among other valid strings
         [InlineData(new object[] { new string[] { "C1234", null, "" } })] // Array with empty string and null value among other valid strings
-
         public async void GetByIds_InvalidCCodes(string[] ccode)
         {
             Mock<IListingInfoQueryService> querySvc = new Mock<IListingInfoQueryService>();
@@ -47,7 +48,42 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 Times.Never
             );
 
-            Assert.Equal("You must specify at least one ccode parameter.", exception.Message);
+            Assert.Equal(ListingInformationController.MISSING_CCODE_MESSAGE, exception.Message);
+            Assert.Equal(400, exception.HttpStatusCode);
+        }
+
+        /// <summary>
+        /// Verify correct handling of invalid c-code formats.
+        /// </summary>
+        [Theory]
+        [InlineData(new object[] { new string[] { "chicken" } })] // Not matching the CCode pattern
+        [InlineData(new object[] { new string[] { "🐓" } })] // Not matching the CCode pattern
+        [InlineData(new object[] { new string[] { "C 115292" } })] // Not matching the CCode pattern
+        [InlineData(new object[] { new string[] { "D115292" } })] // Not matching the CCode pattern
+        [InlineData(new object[] { new string[] { "';--" } })] // SQL Injection
+        [InlineData(new object[] { new string[] { "Robert'); Drop table students;--" } })] // Bobby Tables
+        public async void GetByIds_InvalidCCodeFormat(string[] ccode)
+        {
+            Mock<IListingInfoQueryService> querySvc = new Mock<IListingInfoQueryService>();
+            querySvc.Setup(
+                svc => svc.GetByIds(
+                    It.IsAny<string[]>()
+                )
+            )
+            .Returns(Task.FromResult(new ListingInfo[] { }));
+
+            ListingInformationController controller = new ListingInformationController(NullLogger<ListingInformationController>.Instance, querySvc.Object);
+
+            var exception = await Assert.ThrowsAsync<APIErrorException>(
+                () => controller.GetByIds(ccode)
+            );
+
+            querySvc.Verify(
+                svc => svc.GetByIds(It.IsAny<string[]>()),
+                Times.Never
+            );
+
+            Assert.Equal(ListingInformationController.INVALID_CCODE_MESSAGE, exception.Message);
             Assert.Equal(400, exception.HttpStatusCode);
         }
 
@@ -122,7 +158,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.GetByIds(ccodes)
             );
 
-            Assert.Equal("Could not find the requested codes.", exception.Message);
+            Assert.Equal(ListingInformationController.CCODE_NOT_FOUND_MESSAGE, exception.Message);
             Assert.Equal(404, exception.HttpStatusCode);
         }
 
@@ -156,7 +192,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 }
             };
 
-        Mock<IListingInfoQueryService> querySvc = new Mock<IListingInfoQueryService>();
+            Mock<IListingInfoQueryService> querySvc = new Mock<IListingInfoQueryService>();
             querySvc.Setup(
                 svc => svc.GetByIds(
                     It.IsAny<string[]>()
@@ -170,7 +206,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.GetByIds(ccodes)
             );
 
-            Assert.Equal("Multiple records found.", exception.Message);
+            Assert.Equal(ListingInformationController.CCODE_MULTIPLE_RESULT_MESSAGE, exception.Message);
             Assert.Equal(409, exception.HttpStatusCode);
         }
 
@@ -197,7 +233,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 () => controller.GetByIds(ccodes)
             );
 
-            Assert.Equal("Errors occured.", exception.Message);
+            Assert.Equal(ListingInformationController.INTERNAL_ERROR_MESSAGE, exception.Message);
             Assert.Equal(500, exception.HttpStatusCode);
         }
 

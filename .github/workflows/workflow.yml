@@ -13,57 +13,78 @@ on:
       - 'feature/**'
   ## Any pull request. Yes the syntax looks weird
   pull_request:
+env:
+  DOTNET_NOLOGO: true
+  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
 
 jobs:
 
   test_build_release:
     name: Test, Build, Publish on OS ${{ matrix.operating-system }}
-    needs: extract_build_info
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
+
     steps:
-      - uses: actions/checkout@master
-        ## using latest LTS releases - also it MUST be the SDK version,
-        ## which have stupidly high numbers for the patch version.
-        ## '3.1.100' breaks our app, so let's just use 2.x
+      - uses: actions/checkout@v3
+
+        ## using latest LTS releases - also it MUST be the SDK version.
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '2.1.607'
+          dotnet-version: '3.1.*'
+          source-url: "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
       - name: Build with dotnet
         run: dotnet build --configuration Release /WarnAsError
+
       - name: Unit Tests (with Coverage)
         run: |
               if [ "$RUNNER_OS" == "Windows" ]; then
                 dotnet test
               else
+                # GitHub Actions uses the latest version of the dotnet application to drive the build process.
+                # There's a known issue which causes the command line switches to be ignored. To work around it,
+                # we have to set environment variables (which msbuild will pick up as properties).
+                # dotnet test issue: https://github.com/microsoft/vstest/issues/4014
+                # coverliet issue: https://github.com/coverlet-coverage/coverlet/issues/1391
+                #
+                export CollectCoverage=true
+                export CoverletOutputFormat=lcov
+                export CoverletOutput="../../lcov"
                 dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=../../lcov test/**
               fi
         shell: bash
+
       - name: Save Code Coverage Output
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-${{ matrix.operating-system }}
           path: lcov.info
         if: matrix.operating-system != 'windows-latest'
+
       - name: Publish
-        run: dotnet publish -c Release -o $GITHUB_WORKSPACE/out src/NCI.OCPL.Api.CTSListingPages/
-        shell: bash
-      - name: Record metadata
-        env:
-          BUILD_INFO: ${{ toJson( needs.extract_build_info.outputs ) }}
         run: |
-          echo "$BUILD_INFO"
-          mkdir $GITHUB_WORKSPACE/out/wwwroot/
-          echo "$BUILD_INFO" > $GITHUB_WORKSPACE/out/wwwroot/build-info.json
+              dotnet publish -c Release -o $GITHUB_WORKSPACE/out/triallistingsupport-api src/NCI.OCPL.Api.CTSListingPages/
+              cp tools/deploy-site.ps1 out/
+
+              ## directory for build-info.json
+              mkdir -p $GITHUB_WORKSPACE/out/triallistingsupport-api/wwwroot/
         shell: bash
+
+      - name: Record build metadata
+        uses: nciocpl/build-info-action@v1.0.0
+        with:
+          output-name: out/triallistingsupport-api/wwwroot/build-info.json
+
       - name: Upload Published Artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: listing-page-api-${{ matrix.operating-system }}
           path: out
+
 
   integration_tests:
     name: Run Integration Tests (on Linux)
@@ -71,29 +92,32 @@ jobs:
     needs: test_build_release
     services:
       elasticsearch:
-        image: elasticsearch:7.9.2
+        image: elasticsearch:7.17.5
         env:
           ## Pass elasticsearch options via environment variables.
           discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
         ports:
           ## NOTE: This will be exposed as a random port referenced below by job.services.elasticsearch.ports[9200]
           - 9200/tcp
         options: --health-cmd="curl http://localhost:9200/_cluster/health" --health-interval=10s --health-timeout=5s --health-retries=10
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
+
       - name: Download Published Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: listing-page-api-ubuntu-latest
           path: built-api
-        ## using latest LTS releases - also it MUST be the SDK version,
-        ## which have stupidly high numbers for the patch version.
-        ## '3.1.100' breaks our app, so let's just use 2.x
+
+        ## using latest LTS releases - also it MUST be the SDK version.
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '2.1.607'
+          dotnet-version: '3.1.*'
+          source-url: "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
       - name: Load Data into elasticsearch & prepare for tests
         env:
           ELASTIC_SEARCH_HOST: http://localhost:${{ job.services.elasticsearch.ports[9200] }}
@@ -103,6 +127,7 @@ jobs:
 
               ## Load the elasticsearch data
               ./integration-tests/bin/load-integration-data.sh
+
       - name: Start API
         env:
           Elasticsearch__Servers: http://localhost:${{ job.services.elasticsearch.ports[9200] }}
@@ -110,7 +135,7 @@ jobs:
           API_URL: http://localhost:5000
           SLEEP_TIMEOUT: 5
           WAIT_DURATION: 120
-          APP_PATH: ./built-api
+          APP_PATH: ./built-api/triallistingsupport-api
           APP_ASSEMBLY: NCI.OCPL.Api.CTSListingPages.dll
         run: |
               ## TODO: This should become a GitHub Action.
@@ -118,7 +143,7 @@ jobs:
               ## Start the app and log output
               ## NOTE: We must change directory because while you can call `dotnet "${APP_PATH}/${APP_ASSEMBLY}"`
               ## it will not find the appsettings.json, so we must cd into the APP_PATH first
-              cd $APP_PATH && dotnet $APP_ASSEMBLY > ../integration-tests/target/api_log.txt 2>&1 &
+              cd $APP_PATH && dotnet $APP_ASSEMBLY > $GITHUB_WORKSPACE/integration-tests/target/api_log.txt 2>&1 &
 
               time_waited=1
               echo "Checking status of ${API_URL}."
@@ -135,6 +160,7 @@ jobs:
               done
 
               echo "API is up"
+
       - name: Run Integration Test
         ## Normally bash runs with -e which exits the shell upon hitting
         ## an error which breaks our capturing of those errors.
@@ -148,11 +174,13 @@ jobs:
               ## fail the entire job
               echo TEST_EXIT_CODE=$? >> $GITHUB_ENV
               exit 0
+
       - name: Upload Integration test results
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: integration-test-results
           path: integration-tests/target
+
       - name: Fail build on bad tests
         run: |
               ## Check if we had errors on the test step, and if so, fail the job
@@ -162,51 +190,4 @@ jobs:
               else
                 echo "Tests passed"
               fi
-
-  extract_build_info:
-    ## Gather metadata for the build artifact.
-    ##
-    ## This is done in a separate job so we don't have to figure out how to extract the
-    ## same information on every platform.
-    ## Ideally, this should be done in a GitHub Action.
-    name: Extract build metadata.
-    runs-on: ubuntu-latest
-    outputs:
-      build_name: ${{ steps.set_outputs.outputs.build_name }}
-      branch_name: ${{ steps.set_outputs.outputs.branch_name }}
-      commit_hash: ${{ steps.set_outputs.outputs.commit_hash }}
-      repo_owner: ${{ steps.set_outputs.outputs.repo_owner }}
-      repo_name: ${{ steps.set_outputs.outputs.repo_name }}
-
-    steps:
-      - name: Set outputs
-        id: set_outputs
-        run: |
-          ## PUSH
-          if [ "${{ github.event_name }}" == "push" ]; then
-            BUILD_NAME=$(sed -E 's/refs\/(heads|tags)\///; s/\//__/g;' <<< $GITHUB_REF)
-            BRANCH_NAME=$(sed -E 's/refs\/(heads|tags)\///;' <<< $GITHUB_REF)
-            COMMIT_HASH=$(echo "${GITHUB_SHA}")
-          ## PULL_REQUEST
-          elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            BUILD_NAME=$(echo "pr-${{ github.event.pull_request.number }}")
-            BRANCH_NAME=$(echo "pr-${{ github.event.pull_request.number }}")
-            COMMIT_HASH=$(echo "${{ github.event.pull_request.head.sha }}")
-          else
-            ## ERROR
-            exit 1
-          fi
-          ## For step checks and artifact deployment path.
-          ## Same for push and PR
-          export REPO_FULL=${{ github.repository }}
-          export REPO_RE='([^/]+)/(.*)'
-          [[ "$REPO_FULL" =~ $REPO_RE ]]
-          REPO_OWNER=$(echo "${BASH_REMATCH[1]}")
-          REPO_NAME=$(echo "${BASH_REMATCH[2]}")
-          ## Set step outputs for later use
-          echo ::set-output name=build_name::${BUILD_NAME}
-          echo ::set-output name=branch_name::${BRANCH_NAME}
-          echo ::set-output name=commit_hash::${COMMIT_HASH}
-          echo ::set-output name=repo_owner::${REPO_OWNER}
-          echo ::set-output name=repo_name::${REPO_NAME}
 
