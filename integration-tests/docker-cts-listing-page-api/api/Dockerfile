@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0
 WORKDIR /app
 
 # Get the NIH Root certificates and install them so we work on VPN
@@ -12,4 +12,4 @@ EXPOSE 5001
 ENV ASPNETCORE_ENVIRONMENT=inttest
 ENV ASPNETCORE_URLS="http://*:5000"
 ENV DOTNET_USE_POLLING_FILE_WATCHER=true
-ENTRYPOINT ["dotnet", "watch", "--project", "src/NCI.OCPL.Api.CTSListingPages", "run"]
+ENTRYPOINT ["dotnet", "watch", "--project", "src/NCI.OCPL.Api.CTSListingPages", "run", "--quiet"]
