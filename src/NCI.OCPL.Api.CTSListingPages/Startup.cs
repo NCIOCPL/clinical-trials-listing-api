@@ -51,6 +51,9 @@ namespace NCI.OCPL.Api.CTSListingPages
             services.AddTransient<IListingInfoQueryService, ESListingInfoQueryService>();
 
             services.Configure<ListingPageAPIOptions>(Configuration.GetSection("ListingPageAPI"));
+
+            services.AddTransient<IListingInfoHealthService,ESListingInfoHealthService>();
+            services.AddTransient<ITrialTypeHealthService,ESTrialTypeHealthService>();
         }
 
         /*****************************
