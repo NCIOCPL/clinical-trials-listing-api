@@ -34,7 +34,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '3.1.*'
+          dotnet-version: '6.0.*'
           source-url: "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
       - name: Build with dotnet
@@ -115,7 +115,7 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '3.1.*'
+          dotnet-version: '6.0.*'
           source-url: "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
       - name: Load Data into elasticsearch & prepare for tests
