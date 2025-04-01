@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/sdk:8.0
 WORKDIR /app
 
 # Get the NIH Root certificates and install them so we work on VPN
