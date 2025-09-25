@@ -11,6 +11,10 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   ci_remote:
     uses: nciocpl/nci.ocpl.api.shared/.github/workflows/common-api-ci.yml@workflow/v1
