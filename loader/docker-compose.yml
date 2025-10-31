@@ -1,0 +1,9 @@
+services:
+  elasticsearch:
+    container_name: es7
+    image: elasticsearch:7.17.28
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      discovery.type: single-node

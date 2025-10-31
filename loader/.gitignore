@@ -1,0 +1,5 @@
+*~
+*.log
+venv/
+.venv/
+dumps/
