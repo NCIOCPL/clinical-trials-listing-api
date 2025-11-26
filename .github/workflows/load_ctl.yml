@@ -76,8 +76,8 @@ jobs:
           output_path = os.environ["GITHUB_OUTPUT"]
           with open(output_path, "a") as f:
               f.write(f"env={env}")
-              f.write(f"es_host_key=CC_ES_HOST_{'${{ inputs.environment }}'.upper()})
-              f.write(f"es_port_key=CC_ES_PORT_{'${{ inputs.environment }}'.upper()})
+              f.write(f"es_host_key=CC_ES_HOST_{'${{ inputs.environment }}'.upper()}")
+              f.write(f"es_port_key=CC_ES_PORT_{'${{ inputs.environment }}'.upper()}")
 
   load:
     name: Load
