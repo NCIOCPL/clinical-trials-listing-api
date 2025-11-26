@@ -1,0 +1,109 @@
+name: Load Clinical Trials Listings
+on:
+  # Update tiers when merging to the relevant branch
+  push:
+    branches:
+      # QA
+      - develop
+      # Stage
+      - release/**
+      - hotfix/**
+      # Prod
+      - main
+    paths:
+      - .github/workflows/load_ctl.yml
+      - loader/**
+  # Update Develop with PRs (assumption is one PR at a time)
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths:
+      - .github/workflows/load_ctl.yml
+      - loader/**
+  # Allow for an arbitrary run, as well as production releases (will be limited to main)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Which tier to load to
+        type: choice
+        required: true
+        options:
+          - please select
+          - Dev
+          - QA
+          - Stage
+          - Prod
+env:
+  # Allows python output to flow to GitHub during execution
+  PYTHONUNBUFFERED: "1"
+
+# Only run one instance of this workflow at a time, per environment
+concurrency:
+  group: ${{ github.workflow }} - ${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  # Determines what to set as the environment for the next job in the workflow
+  set-env:
+    name: Set Environment
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.set.outputs.env }}
+      es_host_key: ${{ steps.set.outputs.es_host_key }}
+      es_port_key: ${{ steps.set.outputs.es_port_key }}
+    steps:
+      - id: set
+        shell: python
+        run: |
+          import os
+
+          event_name = "${{ github.event_name }}"
+
+          if event_name == "workflow_dispatch":
+              env = "WebAPIs " + "${{ inputs.environment }}"
+          elif event_name == "push":
+            branch = "${{ github.ref }}".split("refs/heads/")[1]
+            if branch.startswith("release") or branch.startswith("hotfix"):
+              env = "WebAPIs Stage"
+            elif branch.startswith("develop"):
+              env = "WebAPIs QA"
+            elif branch.startswith("main"):
+              env = "WebAPIs Prod"
+          elif event_name == "pull_request":
+              env = "WebAPIs Dev"
+          else:
+              raise ValueError("Invalid event received.")
+
+          output_path = os.environ["GITHUB_OUTPUT"]
+          with open(output_path, "a") as f:
+              f.write(f"env={env}")
+              f.write(f"es_host_key=CC_ES_HOST_{'${{ inputs.environment }}'.upper()})
+              f.write(f"es_port_key=CC_ES_PORT_{'${{ inputs.environment }}'.upper()})
+
+  load:
+    name: Load
+    needs: set-env
+    runs-on: self-hosted
+    # See https://github.com/NCIOCPL/docker-images/wiki/GitHub-Actions-Jobs-Containers
+    container:
+      image: ${{ vars.ACTIONS_CONTAINER_REGISTRY == 'nci' && vars.NCI_DOCKER_URL || 'ghcr.io/nciocpl'}}/cc-loaders:1
+      credentials:
+        username: ${{ vars.ACTIONS_CONTAINER_REGISTRY == 'nci' && secrets.NCI_DOCKER_USERNAME || github.actor }}
+        password: ${{ vars.ACTIONS_CONTAINER_REGISTRY == 'nci' && secrets.NCI_DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
+    environment: ${{ needs.set-env.outputs.env }}
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Input summary
+        run: |
+          echo '### Workflow Inputs' >> $GITHUB_STEP_SUMMARY
+          echo 'Input|Value' >> $GITHUB_STEP_SUMMARY
+          echo '---|---' >> $GITHUB_STEP_SUMMARY
+          echo 'Environment|${{ inputs.environment }}' >> $GITHUB_STEP_SUMMARY
+
+      - name: Load glossary
+        working-directory: loader/src
+        run:
+
+          ./load_ctinfo.py --host ${{ secrets[needs.set-env.outputs.es_host_key] }} --port ${{ vars[needs.set-env.outputs.es_port_key] }}

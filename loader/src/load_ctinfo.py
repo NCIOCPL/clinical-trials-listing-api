@@ -98,7 +98,7 @@ class Loader:
                 stderr.write("done\n")
         except (OSError, IOError, JSONDecodeError, ValueError) as e:
             self.logger.exception("failure")
-            self.__alert(e)
+            raise RuntimeError("Loading to Elasticsearch failed") from e
         elapsed = datetime.now() - start
         self.logger.info("processing time: %s", elapsed)
 
@@ -296,7 +296,7 @@ class Loader:
     def logger(self):
         """Used for recording what we do."""
         logger = getLogger(self.LOG)
-        basicConfig(filename=f"{self.LOG}.log", level="INFO", format=self.FMT)
+        basicConfig(level="INFO", format=self.FMT)
         return logger
 
     @cached_property
@@ -404,18 +404,6 @@ class Loader:
     def verbose(self):
         """Show progress (for running from the command line)."""
         return bool(self.opts.verbose)
-
-    def __alert(self, e):
-        """Send out email notification on failure.
-
-        TODO:
-            Implement method of sending notifications on failure.
-
-        Pass:
-            e - Exception caught during processing
-        """
-
-        stderr.write(f"failure: {e}\n")
 
     def __cleanup(self):
         """Prune old indices."""
