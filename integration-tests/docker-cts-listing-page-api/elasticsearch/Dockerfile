@@ -1,4 +1,4 @@
-FROM elasticsearch:7.17.5
+FROM elasticsearch:7.17.28
 
 # Get the NIH Root certificates and install them so we work on VPN
 # Download from https://ocio.nih.gov/Smartcard/Pages/PKI_chain.aspx
