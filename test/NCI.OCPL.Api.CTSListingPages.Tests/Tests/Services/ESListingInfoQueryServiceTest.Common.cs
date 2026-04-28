@@ -14,33 +14,29 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         /// Simulates a "no results found" response from Elasticsearch so we
         /// have something for tests where we don't care about the response.
         /// </summary>
-        private Stream MockEmptyResponse
-        {
-            get
-            {
-                string empty = @"
+        private string MockEmptyResponseBody => @"
 {
-    ""took"": 223,
-    ""timed_out"": false,
-    ""_shards"": {
-                ""total"": 1,
-        ""successful"": 1,
-        ""skipped"": 0,
-        ""failed"": 0
+    ""took"" : 3,
+    ""timed_out"" : false,
+    ""_shards"" : {
+        ""total"" : 1,
+        ""successful"" : 1,
+        ""skipped"" : 0,
+        ""failed"" : 0
     },
-    ""hits"": {
-                ""total"": 0,
-        ""max_score"": null,
-        ""hits"": []
+    ""hits"" : {
+        ""total"" : {
+            ""value"" : 0,
+            ""relation"" : ""eq""
+        },
+        ""max_score"" : null,
+        ""hits"" : [ ]
     }
 }";
-                byte[] byteArray = Encoding.UTF8.GetBytes(empty);
-                return new MemoryStream(byteArray);
-            }
-        }
+
 
         /// <summary>
-        /// Mock Elasticsearch configuraiton options.
+        /// Mock Elasticsearch configuration options.
         /// </summary>
         private IOptions<ListingPageAPIOptions> GetMockOptions()
         {

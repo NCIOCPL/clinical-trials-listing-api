@@ -21,12 +21,12 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
     public class ListingInformationController : ControllerBase
     {
         /// <summary>
-        /// Missing prettyURlName parameter.
+        /// Missing prettyUrlName parameter.
         /// </summary>
         public const string MISSING_PRETTY_URL_NAME_MESSAGE = "You must specify the prettyUrlName parameter.";
 
         /// <summary>
-        /// prettyURlName not found.
+        /// prettyUrlName not found.
         /// </summary>
         public const string PRETTY_URL_NAME_NOT_FOUND_MESSAGE = "Could not find the requested pretty URL name.";
 
@@ -58,7 +58,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
         /// <summary>
         /// Generic internal error.
         /// </summary>
-        public const string INTERNAL_ERROR_MESSAGE = "Errors occured.";
+        public const string INTERNAL_ERROR_MESSAGE = "Errors occurred.";
 
         /// <summary>
         /// The logger instance.

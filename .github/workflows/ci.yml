@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   ci_remote:
-    uses: nciocpl/nci.ocpl.api.shared/.github/workflows/common-api-ci.yml@workflow/v1
+    uses: nciocpl/nci.ocpl.api.shared/.github/workflows/common-api-ci.yml@workflow/v4
     with:
       api-project: src/NCI.OCPL.Api.CTSListingPages/NCI.OCPL.Api.CTSListingPages.csproj
       artifact-name: listing-page

@@ -37,7 +37,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Controllers
         /// <summary>
         /// Generic internal error.
         /// </summary>
-        public const string INTERNAL_ERROR_MESSAGE = "Errors occured.";
+        public const string INTERNAL_ERROR_MESSAGE = "Errors occurred.";
 
         /// <summary>
         /// The logger instance.

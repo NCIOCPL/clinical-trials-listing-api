@@ -9,6 +9,11 @@ services:
         environment:
             - discovery.type=single-node
             - ES_JAVA_OPTS=-Xms750m -Xmx750m
+            # Turn security settings off for testing. (Allows http instead of https.)
+            - xpack.security.enabled=false
+            - xpack.security.transport.ssl.enabled=false
+            - xpack.security.http.ssl.enabled=false
+            - http.host=0.0.0.0
         ## These exposed ports are for debugging only. .NET +
         ## Docker + MacOS == bad scene. (.NET always wants to
         ## use the hosts name, and on a mac that is actually
