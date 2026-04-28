@@ -1,26 +1,27 @@
 using System;
 using System.Linq;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Nest;
 
-using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.QueryDsl;
+
 using NCI.OCPL.Api.Common;
 using NCI.OCPL.Api.CTSListingPages.Models;
 
 namespace NCI.OCPL.Api.CTSListingPages.Services
 {
     /// <summary>
-    /// Elasticsearch implemenation of the service for retrieving Listing Info documents.
+    /// Elasticsearch implementation of the service for retrieving Listing Info documents.
     /// </summary>
     public class ESListingInfoQueryService : IListingInfoQueryService
     {
         /// <summary>
         /// The elasticsearch client
         /// </summary>
-        private IElasticClient _elasticClient;
+        private ElasticsearchClient _elasticClient;
 
         /// <summary>
         /// The API options.
@@ -35,7 +36,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ESListingInfoQueryService(IElasticClient client, IOptions<ListingPageAPIOptions> apiOptionsAccessor,
+        public ESListingInfoQueryService(ElasticsearchClient client, IOptions<ListingPageAPIOptions> apiOptionsAccessor,
             ILogger<ESListingInfoQueryService> logger)
         {
             _elasticClient = client;
@@ -50,14 +51,13 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         /// <returns>A ListingInfo object or null if an exact match is not found.</returns>
         public async Task<ListingInfo> GetByPrettyUrlName(string prettyUrlName)
         {
-            // Set up the SearchRequest to send to elasticsearch.
-            Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
-            SearchRequest request = new SearchRequest(index)
+            SearchRequest request = new SearchRequest(this._apiOptions.ListingInfoAliasName)
             {
-                Query = new TermQuery { Field = "pretty_url_name", Value = prettyUrlName.ToString() }
+                Query = new TermQuery { Field = "pretty_url_name", Value = prettyUrlName },
+                Size = 2 // We only need to know if there are 0, 1, or more than 1 records, so we can limit the response to 2 records.
             };
 
-            ISearchResponse<ListingInfo> response = null;
+            SearchResponse<ListingInfo> response = null;
             try
             {
                 response = await _elasticClient.SearchAsync<ListingInfo>(request);
@@ -65,25 +65,26 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error searching index: '{this._apiOptions.ListingInfoAliasName}'.");
-                throw new APIInternalException("errors occured");
+                throw new APIInternalException("errors occurred");
             }
 
-            if (!response.IsValid)
+            if (!response.IsValidResponse)
             {
                 String msg = $"Invalid response when searching for pretty URL name '{prettyUrlName}'.";
                 _logger.LogError(msg);
                 _logger.LogError(response.DebugInformation);
-                throw new APIInternalException("errors occured");
+                throw new APIInternalException("errors occurred");
             }
 
             ListingInfo record = null;
 
-            // If there is are any records in the response, the lookup was successful.
-            if (response.Total > 0)
+            // If there are any records in the response, the lookup was successful.
+            int total = response.Documents.Count;
+            if (total > 0)
             {
                 record = response.Documents.First();
 
-                if (response.Total > 1)
+                if (total > 1)
                 {
                     _logger.LogWarning($"Found multiple records for pretty URL name '{prettyUrlName}'.");
                 }
@@ -99,18 +100,17 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         /// <returns>An array of ListingInfo objects or null if exact or partial matches are not found.</returns>
         public async Task<ListingInfo[]> GetByIds(string[] ccodes)
         {
-            // Set up the SearchRequest to send to elasticsearch.
-            Indices index = Indices.Index(new string[] { this._apiOptions.ListingInfoAliasName });
+            Indices index = Indices.Index(_apiOptions.ListingInfoAliasName);
             SearchRequest request = new SearchRequest(index)
             {
                 Query = new TermsSetQuery {
                     Field = "concept_id",
                     Terms = ccodes,
-                    MinimumShouldMatchScript = new InlineScript("params.num_terms")
+                    MinimumShouldMatchScript = new Script { Source = "params.num_terms"}
                 }
             };
 
-            ISearchResponse<ListingInfo> response = null;
+            SearchResponse<ListingInfo> response = null;
             try
             {
                 response = await _elasticClient.SearchAsync<ListingInfo>(request);
@@ -118,15 +118,15 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error searching index: '{this._apiOptions.ListingInfoAliasName}'.");
-                throw new APIInternalException("errors occured");
+                throw new APIInternalException("errors occurred");
             }
 
-            if (!response.IsValid)
+            if (!response.IsValidResponse)
             {
                 String msg = $"Invalid response when searching for c-code(s) '{String.Join(",", ccodes)}'.";
                 _logger.LogError(msg);
                 _logger.LogError(response.DebugInformation);
-                throw new APIInternalException("errors occured");
+                throw new APIInternalException("errors occurred");
             }
 
             ListingInfo[] results = null;

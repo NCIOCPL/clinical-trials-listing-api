@@ -3,7 +3,8 @@ using System.Linq;
 
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
-using Nest;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.QueryDsl;
 
 using System.Threading.Tasks;
 using NCI.OCPL.Api.Common;
@@ -12,14 +13,14 @@ using NCI.OCPL.Api.CTSListingPages.Models;
 namespace NCI.OCPL.Api.CTSListingPages.Services
 {
     /// <summary>
-    /// Elasticsearch implemenation of the service for retrieving trial type data.
+    /// Elasticsearch implementation of the service for retrieving trial type data.
     /// </summary>
     public class ESTrialTypeQueryService : ITrialTypeQueryService
     {
         /// <summary>
         /// The elasticsearch client
         /// </summary>
-        private IElasticClient _elasticClient;
+        private ElasticsearchClient _elasticClient;
 
         /// <summary>
         /// The API options.
@@ -34,7 +35,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ESTrialTypeQueryService(IElasticClient client, IOptions<ListingPageAPIOptions> apiOptionsAccessor,
+        public ESTrialTypeQueryService(ElasticsearchClient client, IOptions<ListingPageAPIOptions> apiOptionsAccessor,
             ILogger<ESTrialTypeQueryService> logger)
         {
             _elasticClient = client;
@@ -50,14 +51,21 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         public async Task<TrialTypeInfo> Get(string name)
         {
             // Set up the SearchRequest to send to elasticsearch.
-            Indices index = Indices.Index(new string[] { this._apiOptions.TrialTypeInfoAliasName });
+            Indices index = Indices.Index(this._apiOptions.TrialTypeInfoAliasName );
             SearchRequest request = new SearchRequest(index)
             {
-                Query = new TermQuery { Field = "pretty_url_name", Value = name.ToString() } ||
-                        new TermQuery { Field = "id_string", Value = name.ToString() }
+                Query = new BoolQuery
+                {
+                    Should = new Query[]
+                    {
+                        new TermQuery { Field = "pretty_url_name", Value = name },
+                        new TermQuery { Field = "id_string", Value = name }
+                    }
+                },
+                Size = 2 // We only need to know if there are 0, 1, or more than 1 matches.
             };
 
-            ISearchResponse<TrialTypeInfo> response = null;
+            SearchResponse<TrialTypeInfo> response = null;
             try
             {
                 response = await _elasticClient.SearchAsync<TrialTypeInfo>(request);
@@ -65,25 +73,26 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error searching index: '{this._apiOptions.TrialTypeInfoAliasName}'.");
-                throw new APIInternalException("errors occured");
+                throw new APIInternalException("errors occurred");
             }
 
-            if (!response.IsValid)
+            if (!response.IsValidResponse)
             {
                 String msg = $"Invalid response when searching for pretty URL name or identifier '{name}'.";
                 _logger.LogError(msg);
                 _logger.LogError(response.DebugInformation);
-                throw new APIInternalException("errors occured");
+                throw new APIInternalException("errors occurred");
             }
 
             TrialTypeInfo trialTypeInfo = null;
 
             // If there are any records in the response, the lookup was successful.
-            if (response.Total > 0)
+            int total = response.Documents.Count;
+            if (total > 0)
             {
                 trialTypeInfo = response.Documents.First();
 
-                if (response.Total > 1)
+                if (total > 1)
                 {
                     _logger.LogWarning($"Found multiple records for pretty URL name or identifier '{name}'.");
                 }

@@ -1,8 +1,4 @@
-using System;
-using System.Threading.Tasks;
-
-using Elasticsearch.Net;
-using Nest;
+using Elastic.Clients.Elasticsearch;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,7 +19,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Services
         /// <param name="client">The client to be used for connections</param>
         /// <param name="apiOptionsAccessor">API configuration options</param>
         /// <param name="logger">Logger instance.</param>
-        public ESTrialTypeHealthService(IElasticClient client,
+        public ESTrialTypeHealthService(ElasticsearchClient client,
         IOptions<ListingPageAPIOptions> apiOptionsAccessor,
         ILogger<ESHealthCheckService> logger)
         : base(

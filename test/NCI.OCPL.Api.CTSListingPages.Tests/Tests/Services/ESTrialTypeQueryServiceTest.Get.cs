@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json.Nodes;
 
-using Elasticsearch.Net;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Moq;
-using Nest;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 using NCI.OCPL.Api.Common;
@@ -28,7 +28,7 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         public async void Get_TestRequestSetup()
         {
             const string theName = "supportive-care";
-            JObject expectedRequest = JObject.Parse(
+            JsonNode expectedRequest = JsonNode.Parse(
 @"{
     ""query"": {
         ""bool"": {
@@ -37,34 +37,23 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
                 { ""term"": { ""id_string"":       { ""value"": ""supportive-care"" } } }
             ]
         }
-    }
+    },
+    ""size"": 2
 }
 ");
 
             Uri esURI = null;
-            string esContentType = String.Empty;
             HttpMethod esMethod = HttpMethod.DELETE; // Basically, something other than the expected value.
 
-            JToken requestBody = null;
+            JsonNode requestBody = null;
 
-            ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
-            conn.RegisterRequestHandlerForType<Nest.SearchResponse<TrialTypeInfo>>((req, res) =>
+            var connectionSettings = TestingElasticsearchClientSettingsFactory.Create(MockEmptyResponseBody, 200, details =>
             {
-                // We don't really care about the response for this test.
-                res.Stream = MockEmptyResponse;
-                res.StatusCode = 200;
-
-                esURI = req.Uri;
-                esContentType = req.RequestMimeType;
-                esMethod = req.Method;
-                requestBody = conn.GetRequestPost(req);
+                esURI = details.Uri;
+                esMethod = details.HttpMethod;
+                requestBody = JsonNode.Parse(Encoding.UTF8.GetString(details.RequestBodyInBytes));
             });
-
-            // The URI does not matter, an intercepting connector never requests from the server.
-            var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
-
-            var connectionSettings = new ConnectionSettings(pool, conn);
-            IElasticClient client = new ElasticClient(connectionSettings);
+            ElasticsearchClient client = new ElasticsearchClient(connectionSettings);
 
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
@@ -76,9 +65,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
             await query.Get(theName);
 
             Assert.Equal("/trialtypeinfov1/_search", esURI.AbsolutePath);
-            Assert.Equal("application/json", esContentType);
             Assert.Equal(HttpMethod.POST, esMethod);
-            Assert.Equal(expectedRequest, requestBody, new JTokenEqualityComparer());
+            Assert.True(JsonNode.DeepEquals(expectedRequest, requestBody));
         }
 
         /// <summary>
@@ -87,18 +75,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         [Fact]
         public async void Get_TestInvalidResponse()
         {
-            ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
-            conn.RegisterRequestHandlerForType<Nest.SearchResponse<TrialTypeInfo>>((req, res) =>
-            {
-
-            });
-
-            // While this has a URI, it does not matter, an intercepting connector never requests
-            // from the server.
-            var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
-
-            var connectionSettings = new ConnectionSettings(pool, conn);
-            IElasticClient client = new ElasticClient(connectionSettings);
+            var connectionSettings = TestingElasticsearchClientSettingsFactory.Create("{}", 500);
+            ElasticsearchClient client = new ElasticsearchClient(connectionSettings);
 
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
@@ -143,18 +121,8 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         [Theory, MemberData(nameof(Get_Success_Scenarios))]
         public async void Get_TestSuccess(Get_BaseScenario data)
         {
-            ElasticsearchInterceptingConnection conn = new ElasticsearchInterceptingConnection();
-            conn.RegisterRequestHandlerForType<Nest.SearchResponse<TrialTypeInfo>>((req, res) =>
-            {
-                res.Stream = TestingTools.GetStringAsStream(data.MockESResponse);
-                res.StatusCode = 200;
-            });
-
-            // The URI does not matter, an intercepting connector never requests from the server.
-            var pool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
-
-            var connectionSettings = new ConnectionSettings(pool, conn);
-            IElasticClient client = new ElasticClient(connectionSettings);
+            var connectionSettings = TestingElasticsearchClientSettingsFactory.Create(data.MockESResponse, 200);
+            ElasticsearchClient client = new ElasticsearchClient(connectionSettings);
 
             // Setup the mocked Options
             IOptions<ListingPageAPIOptions> clientOptions = GetMockOptions();
@@ -194,33 +162,28 @@ namespace NCI.OCPL.Api.CTSListingPages.Tests
         /// Simulates a "no results found" response from Elasticsearch so we
         /// have something for tests where we don't care about the response.
         /// </summary>
-        private Stream MockEmptyResponse
-        {
-            get
-            {
-                string empty = @"
+        private string MockEmptyResponseBody => @"
 {
-    ""took"": 223,
-    ""timed_out"": false,
-    ""_shards"": {
-        ""total"": 1,
-        ""successful"": 1,
-        ""skipped"": 0,
-        ""failed"": 0
+    ""took"" : 3,
+    ""timed_out"" : false,
+    ""_shards"" : {
+        ""total"" : 1,
+        ""successful"" : 1,
+        ""skipped"" : 0,
+        ""failed"" : 0
     },
-    ""hits"": {
-        ""total"": 0,
-        ""max_score"": null,
-        ""hits"": []
+    ""hits"" : {
+        ""total"" : {
+            ""value"" : 0,
+            ""relation"" : ""eq""
+        },
+        ""max_score"" : null,
+        ""hits"" : [ ]
     }
 }";
-                byte[] byteArray = Encoding.UTF8.GetBytes(empty);
-                return new MemoryStream(byteArray);
-            }
-        }
 
         /// <summary>
-        /// Mock Elasticsearch configuraiton options.
+        /// Mock Elasticsearch configuration options.
         /// </summary>
         private IOptions<ListingPageAPIOptions> GetMockOptions()
         {
