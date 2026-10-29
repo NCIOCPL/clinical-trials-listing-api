@@ -1,4 +1,4 @@
-FROM elasticsearch:8.19.12
+FROM docker.elastic.co/elasticsearch/elasticsearch-wolfi:8.19.24
 
 USER root
 
